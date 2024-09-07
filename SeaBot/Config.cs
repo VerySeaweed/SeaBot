@@ -20,7 +20,7 @@ namespace SeaBot
 
         public bool UseApi { get; set; }
 
-        public string? WebSocketListenedUri { get; set; }
+        public Uri? WebSocketListenedUri { get; set; }
 
         public void SaveSelf()
         {

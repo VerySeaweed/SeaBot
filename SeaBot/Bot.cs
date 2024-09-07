@@ -75,7 +75,7 @@ namespace SeaBot
                     UseQrCodeInsteadOfPassword = true,
                     LimitUinList = new Message.LimitUin(),
                     UseApi = false,
-                    WebSocketListenedUri = "http://127.0.0.1:8082/"
+                    WebSocketListenedUri = new Uri("ws://127.0.0.1:8082/")
                 };
                 config.SaveSelf();//save config
                 this.Config = config;
