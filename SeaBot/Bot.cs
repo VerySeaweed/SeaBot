@@ -75,7 +75,8 @@ namespace SeaBot
                     UseQrCodeInsteadOfPassword = true,
                     LimitUinList = new Message.LimitUin(),
                     UseApi = false,
-                    ApiListenedPort = 8082
+                    ApiListenedPort = 8082,
+                    AccessCode = "please edit this to create you own access code."
                 };
                 config.SaveSelf();//save config
                 this.Config = config;
