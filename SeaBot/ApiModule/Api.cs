@@ -14,26 +14,48 @@ namespace SeaBot.ApiModule
 {
     internal class Api
     {
-        public HttpServer? HttpServer;
+        public HttpServer? Server;
 
-        public async void StartListener()
+        public List<WebSocketSharp.WebSocket> sockets = new();
+
+        public void StartListener()
         {
             var logger = new Logger();
-            IPAddress? ip = null;
-            HttpServer? server =null;
-            if (IPAddress.TryParse(Program.Bot.Config.WebSocketListenedUri.Host,out ip))
-            {
-                server = new HttpServer(ip, Program.Bot.Config.WebSocketListenedUri.Port, false);
-            }
-            else
-            {
-                ip = await Dns.GetHostAddressesAsync(Program.Bot.Config.WebSocketListenedUri.Host);
-            }
+            var server = new HttpServer(Program.Bot.Config.ApiListenedPort, false);
+            server.AddWebSocketService<ApiWebSocketBehavior>("/ws");
+            Server = server;
+            server.Start();
+            logger.Info("Api started.", "ApiManager");
+        }
+
+        public void StopListener()
+        {
+            var logger = new Logger();
+            logger.Info("Api stopped.", "ApiManager");
+            Server.Stop();
         }
 
         public class ApiWebSocketBehavior : WebSocketBehavior
         {
-            
+            protected override void OnOpen()
+            {
+                base.OnOpen();
+
+            }
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                Logger logger = new();
+                base.OnMessage(e);
+                ApiText? text = JsonSerializer.Deserialize<ApiText>(e.Data);
+                if (text!=null)
+                {
+
+                }
+                else
+                {
+                    logger.Warning("Received a null message.", "ApiReceive");
+                }
+            }
         }
     }
 }
