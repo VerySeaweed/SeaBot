@@ -53,7 +53,10 @@ namespace SeaBot.ApiModule
                 ApiText? text = JsonSerializer.Deserialize<ApiText>(e.Data);
                 if (text!=null)
                 {
-
+                    if (text is ApiText.ApiTextHello)
+                    {
+                        Hello(text as ApiText.ApiTextHello);
+                    }
                 }
                 else
                 {
@@ -66,6 +69,18 @@ namespace SeaBot.ApiModule
                 base.OnClose(e);
                 Logger logger = new();
                 logger.Info($"Connection closed. Reason: {e.Reason}", "Api");
+            }
+
+            protected void Hello(ApiText.ApiTextHello text)
+            {
+                if (text == null)
+                {
+                    return;
+                }
+                ApiText.ApiTextHello hello = new();
+                hello.Action = "response";
+                hello.Guid = text.Guid;
+                Send(JsonSerializer.Serialize(hello));
             }
         }
     }

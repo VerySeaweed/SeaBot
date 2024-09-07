@@ -23,7 +23,7 @@ namespace SeaBot.ApiModule
 
         public int StatusCode { get; protected set; }
 
-        public Guid Guid { get; protected set; }
+        public Guid Guid { get; set; }
 
         public EventArgs? Args { get; set; }
 
