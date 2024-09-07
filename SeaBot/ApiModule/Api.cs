@@ -16,8 +16,6 @@ namespace SeaBot.ApiModule
     {
         public HttpServer? Server;
 
-        public List<WebSocketSharp.WebSocket> sockets = new();
-
         public void StartListener()
         {
             var logger = new Logger();
@@ -37,11 +35,15 @@ namespace SeaBot.ApiModule
 
         public class ApiWebSocketBehavior : WebSocketBehavior
         {
+
+            public List<WebSocketSharp.WebSocket> Sockets = new();
+
             protected override void OnOpen()
             {
                 base.OnOpen();
-
+                
             }
+
             protected override void OnMessage(MessageEventArgs e)
             {
                 Logger logger = new();
