@@ -24,7 +24,9 @@ namespace SeaBot.ApiModule
     
     public class ApiText
     {
-        public DateTime SendTime { get; protected set; }
+        public string? AccessCode { get; set; }
+        
+        public DateTime SendTime { get; private set; }
         
         public string? Action { get; set; }
 
@@ -32,7 +34,7 @@ namespace SeaBot.ApiModule
 
         public Guid Guid { get; set; }
 
-        public EventArgs? Args { get; set; }
+        public object? Data { get; set; }
 
         public EMessageType Type { get; set; }
 

@@ -51,14 +51,18 @@ namespace SeaBot.ApiModule
                 Logger logger = new();
                 base.OnMessage(e);
                 logger.Info("Receive a message.", "Api");
-                ApiText? text = JsonSerializer.Deserialize<ApiText>(e.Data);
-                if (text!=null)
+                var text = JsonSerializer.Deserialize<ApiText>(e.Data);
+                if (text != null && text.AccessCode == Program.Bot.Config.AccessCode)
                 {
                     switch (text.Type)
                     {
                         case EMessageType.Hello:
+                            var hello = JsonSerializer.Deserialize<ApiText.ApiTextHello>(e.Data);
+                            if (hello != null)
+                                Hello(hello);
                             break;
                         case EMessageType.Request:
+                            var request = JsonSerializer.Deserialize<ApiText.ApiTextRequest>(e.Data);
                             break;
                         case EMessageType.Response:
                             break;
@@ -70,7 +74,14 @@ namespace SeaBot.ApiModule
                 }
                 else
                 {
-                    logger.Warning("Received a null message.", "Api");
+                    if (text == null)
+                    {
+                        logger.Warning("Received a null message", "Api");
+                    }
+                    else if (text.AccessCode != Program.Bot.Config.AccessCode)
+                    {
+                        logger.Warning("Access code is incorrect", "Api");
+                    }
                 }
             }
 
@@ -84,16 +95,25 @@ namespace SeaBot.ApiModule
             protected void Hello(ApiText.ApiTextHello text)
             {
                 if (text == null)
-                {
                     return;
-                }
                 ApiText.ApiTextHello hello = new()
                 {
                     Action = "response",
                     Guid = text.Guid,
-                    StatusCode = EStatusCode.Hello
+                    StatusCode = EStatusCode.Hello,
+                    Type = EMessageType.Hello
                 };
                 Send(JsonSerializer.Serialize(hello));
+            }
+
+            protected void Request(ApiText.ApiTextRequest request)
+            {
+                if (request == null)
+                    return;
+                if (request.Action=="get_frienf_list")
+                {
+
+                }
             }
         }
     }
