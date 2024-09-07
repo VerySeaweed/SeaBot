@@ -24,7 +24,7 @@ namespace SeaBot.ApiModule
             server.AddWebSocketService<ApiWebSocketBehavior>("/ws");
             Server = server;
             server.Start();
-            logger.Info($"Api started on {server.Address}:{server.Port}", "ApiManager");
+            logger.Info("Api started.", "ApiManager");
         }
 
         public void StopListener()
@@ -38,28 +38,12 @@ namespace SeaBot.ApiModule
         {
             protected List<WebSocketSharp.WebSocket> sockets = new();
 
-            bool helloSend = false;
-
             protected override void OnOpen()
             {
                 base.OnOpen();
                 sockets.Add(Context.WebSocket);
                 Logger logger = new();
-                bool close = true;
                 logger.Info("Connection accepted.", "Api");
-                for (int i = 0; i < 50; i++)
-                {
-                    if (helloSend)
-                    {
-                        close = false;
-                        break;
-                    }
-                    Thread.Sleep(100);
-                }
-                if (!close)
-                {
-                    logger.Warning("Because not receive hello message yet, connection closed automatically.", "Api");
-                }
             }
 
             protected override void OnMessage(MessageEventArgs e)
@@ -76,7 +60,6 @@ namespace SeaBot.ApiModule
                             var hello = JsonSerializer.Deserialize<ApiText.ApiTextHello>(e.Data);
                             if (hello != null)
                                 Hello(hello);
-                            helloSend = true;
                             break;
                         case EMessageType.Request:
                             var request = JsonSerializer.Deserialize<ApiText.ApiTextRequest>(e.Data);
@@ -98,14 +81,6 @@ namespace SeaBot.ApiModule
                     else if (text.AccessCode != Program.Bot.Config.AccessCode)
                     {
                         logger.Warning("Access code is incorrect", "Api");
-                        var response = new ApiText.ApiTextResponse()
-                        {
-                            Action = "response",
-                            StatusCode = EStatusCode.Failed,
-                            Type = EMessageType.Response,
-                            AccessCode = text.AccessCode,
-                            Data = "incorrect access code"
-                        };
                     }
                 }
             }
@@ -121,19 +96,12 @@ namespace SeaBot.ApiModule
             {
                 if (text == null)
                     return;
-                char[] chars = new char[10];
-                Random r = new();
-                for (int i = 0; i < 10; i++)
-                {
-                    chars[i] = (char)r.Next(0, 1000);
-                }
                 ApiText.ApiTextHello hello = new()
                 {
                     Action = "response",
                     Guid = text.Guid,
                     StatusCode = EStatusCode.Hello,
-                    Type = EMessageType.Hello,
-                    Data = new string(chars)
+                    Type = EMessageType.Hello
                 };
                 Send(JsonSerializer.Serialize(hello));
             }
