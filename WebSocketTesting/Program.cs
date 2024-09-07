@@ -7,6 +7,8 @@ namespace WebSocketTesting
 {
     internal class Program
     {
+        static string? Access;
+
         static void Main(string[] args)
         {
             Process();
@@ -49,6 +51,16 @@ namespace WebSocketTesting
         static void Get(object? sender,MessageEventArgs e)
         {
             Console.WriteLine(e.Data);
+            var text = JsonSerializer.Deserialize<ApiText>(e.Data);
+            if (text != null && text.Type == EMessageType.Hello)
+            {
+                var hello = JsonSerializer.Deserialize<ApiText.ApiTextHello>(e.Data);
+                Access = hello.Data as string;
+            }
+            else if (text != null && text.AccessCode == Access)
+            {
+
+            }
         }
     }
 }
