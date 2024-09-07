@@ -28,7 +28,7 @@ namespace SeaBot.ApiModule
         
         public string? Action { get; set; }
 
-        public int StatusCode { get; set; }
+        public EStatusCode StatusCode { get; set; }
 
         public Guid Guid { get; set; }
 
@@ -51,7 +51,7 @@ namespace SeaBot.ApiModule
             public ApiTextHello()
             {
                 Hello = "Hello";
-                StatusCode = (int)EStatusCode.Hello;
+                StatusCode = EStatusCode.Hello;
             }
         }
 
@@ -59,7 +59,7 @@ namespace SeaBot.ApiModule
         {
             public ApiTextRequest()
             {
-                StatusCode = (int)EStatusCode.NotResponse;
+                StatusCode = EStatusCode.NotResponse;
             }
         }
 
@@ -67,7 +67,7 @@ namespace SeaBot.ApiModule
         {
             public ApiTextResponse()
             {
-                StatusCode = (int)EStatusCode.Success;
+                StatusCode = EStatusCode.Success;
             }
         }
     }

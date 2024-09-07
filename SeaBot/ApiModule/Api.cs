@@ -54,10 +54,18 @@ namespace SeaBot.ApiModule
                 ApiText? text = JsonSerializer.Deserialize<ApiText>(e.Data);
                 if (text!=null)
                 {
-                    if (text is ApiText.ApiTextHello)
+                    switch (text.Type)
                     {
-                        logger.Info("ss", "ss");
-                        Hello(text as ApiText.ApiTextHello);
+                        case EMessageType.Hello:
+                            break;
+                        case EMessageType.Request:
+                            break;
+                        case EMessageType.Response:
+                            break;
+                        case EMessageType.Event:
+                            break;
+                        default:
+                            break;
                     }
                 }
                 else
@@ -83,7 +91,7 @@ namespace SeaBot.ApiModule
                 {
                     Action = "response",
                     Guid = text.Guid,
-                    StatusCode = (int)EStatusCode.Hello
+                    StatusCode = EStatusCode.Hello
                 };
                 Send(JsonSerializer.Serialize(hello));
             }

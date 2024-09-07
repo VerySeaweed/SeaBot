@@ -28,7 +28,8 @@ namespace WebSocketTesting
             ApiText.ApiTextHello hello = new()
             {
                 Action = "hello",
-                StatusCode = (int)EStatusCode.NotResponse
+                StatusCode = EStatusCode.NotResponse,
+                Type = EMessageType.Hello
             };
             Console.WriteLine(JsonSerializer.Serialize(hello));
             ws.Send(JsonSerializer.Serialize(hello));
