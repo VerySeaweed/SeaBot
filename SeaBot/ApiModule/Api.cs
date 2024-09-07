@@ -20,7 +20,7 @@ namespace SeaBot.ApiModule
         public void StartListener()
         {
             var logger = new Logger();
-            var server = new HttpServer(Program.Bot.Config.ApiListenedPort, false);
+            var server = new HttpServer(IPAddress.Loopback, Program.Bot.Config.ApiListenedPort, false);
             server.AddWebSocketService<ApiWebSocketBehavior>("/ws");
             Server = server;
             server.Start();
