@@ -21,7 +21,7 @@ namespace SeaBot.ApiModule
         
         public string? Action { get; set; }
 
-        public int StatusCode { get; protected set; }
+        public int StatusCode { get; set; }
 
         public Guid Guid { get; set; }
 
