@@ -19,13 +19,13 @@ namespace SeaBot.Event
         public static void BotOnlineCheck(object sender, EventArgs e)
         {
             var logger = new Logger();
-            logger.Info("Bot log in Sucessfully.", "OnBotOnlineEvent");
+            logger.Info("Bot log in Sucessfully.", "BotOnlineEvent");
         }
 
         public static void BotOfflineCheck(object sender, EventArgs e)
         {
             var logger = new Logger();
-            logger.Warning("Bot log out by server.", "OnBotOfflineEvent");
+            logger.Warning("Bot log out by server.", "BotOfflineEvent");
             FileStream stream = new(@"keystore.json", FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             stream.Close();
             File.Delete(@"keystore.json");

@@ -32,10 +32,7 @@ namespace WebSocketTesting
             {
                 Console.WriteLine("Connection closed");
             };
-            ws.OnMessage += (sender, e) => 
-            {
-                Console.WriteLine("Received: " + e.Data);
-            };
+            ws.OnMessage += Get;
             ws.Connect();
             ApiText.ApiTextHello hello = new()
             {
@@ -43,8 +40,21 @@ namespace WebSocketTesting
                 StatusCode = (int)EStatusCode.NotResponse
             };
             ws.Send(JsonSerializer.Serialize(hello));
-            Console.ReadLine();
-            ws.Close();
+            while (true)
+            {
+                ws.Ping();
+                Thread.Sleep(5000);
+                if (!ws.IsAlive)
+                {
+                    ws.Close();
+                    break;
+                }
+            }
+        }
+
+        static void Get(object? sender,MessageEventArgs e)
+        {
+            Console.WriteLine(e.Data);
         }
     }
 }

@@ -50,17 +50,19 @@ namespace SeaBot.ApiModule
             {
                 Logger logger = new();
                 base.OnMessage(e);
+                logger.Info("Receive a message.", "Api");
                 ApiText? text = JsonSerializer.Deserialize<ApiText>(e.Data);
                 if (text!=null)
                 {
                     if (text is ApiText.ApiTextHello)
                     {
+                        logger.Info("ss", "ss");
                         Hello(text as ApiText.ApiTextHello);
                     }
                 }
                 else
                 {
-                    logger.Warning("Received a null message.", "Api.Receive");
+                    logger.Warning("Received a null message.", "Api");
                 }
             }
 
@@ -77,9 +79,12 @@ namespace SeaBot.ApiModule
                 {
                     return;
                 }
-                ApiText.ApiTextHello hello = new();
-                hello.Action = "response";
-                hello.Guid = text.Guid;
+                ApiText.ApiTextHello hello = new()
+                {
+                    Action = "response",
+                    Guid = text.Guid,
+                    StatusCode = (int)EStatusCode.Hello
+                };
                 Send(JsonSerializer.Serialize(hello));
             }
         }
