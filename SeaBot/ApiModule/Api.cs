@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
+using System.ComponentModel.DataAnnotations;
 
 namespace SeaBot.ApiModule
 {
@@ -41,6 +42,8 @@ namespace SeaBot.ApiModule
             {
                 base.OnOpen();
                 sockets.Add(Context.WebSocket);
+                Logger logger = new();
+                logger.Info("Connection accepted.", "Api");
             }
 
             protected override void OnMessage(MessageEventArgs e)
@@ -54,8 +57,15 @@ namespace SeaBot.ApiModule
                 }
                 else
                 {
-                    logger.Warning("Received a null message.", "ApiReceive");
+                    logger.Warning("Received a null message.", "Api.Receive");
                 }
+            }
+
+            protected override void OnClose(CloseEventArgs e)
+            {
+                base.OnClose(e);
+                Logger logger = new();
+                logger.Info($"Connection closed. Reason: {e.Reason}", "Api");
             }
         }
     }
