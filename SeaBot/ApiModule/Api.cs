@@ -24,7 +24,7 @@ namespace SeaBot.ApiModule
             server.AddWebSocketService<ApiWebSocketBehavior>("/ws");
             Server = server;
             server.Start();
-            logger.Info($"Api started on {server.Address}:{server.Port}", "ApiManager");
+            logger.Info("Api started.", "ApiManager");
         }
 
         public void StopListener()
