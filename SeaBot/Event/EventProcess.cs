@@ -32,7 +32,7 @@ namespace SeaBot.Event
             Thread.Sleep(1000);
             if (Program.Bot.Config.UseApi)
             {
-                Program.Bot._api.EndListener();
+                Program.Bot._api.StopListener();
             }
             Program.Bot._bot.Dispose();
         }
