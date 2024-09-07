@@ -21,7 +21,7 @@ namespace WebSocketTesting
             Process();
         }
 
-        static async void Process()
+        static void Process()
         {
             using WebSocket ws = new("ws://127.0.0.1:8082/ws");
             ws.OnOpen += (sender, e) => 
