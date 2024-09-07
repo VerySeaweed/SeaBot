@@ -6,13 +6,20 @@ using System.Threading.Tasks;
 
 namespace SeaBot.ApiModule
 {
-    enum EStatusCode
+    public enum EStatusCode
     {
         Success=0,
         Hello,
         Processing,
         Failed,
         NotResponse=-1,
+    }
+    public enum EMessageType
+    {
+        Hello=0,
+        Request,
+        Response,
+        Event,
     }
     
     public class ApiText
@@ -26,6 +33,8 @@ namespace SeaBot.ApiModule
         public Guid Guid { get; set; }
 
         public EventArgs? Args { get; set; }
+
+        public EMessageType Type { get; set; }
 
 
         public ApiText()

@@ -5,15 +5,6 @@ using System.Text.Json;
 
 namespace WebSocketTesting
 {
-    enum EStatusCode
-    {
-        Success = 0,
-        Hello,
-        Processing,
-        Failed,
-        NotResponse = -1,
-    }
-
     internal class Program
     {
         static void Main(string[] args)
@@ -39,6 +30,7 @@ namespace WebSocketTesting
                 Action = "hello",
                 StatusCode = (int)EStatusCode.NotResponse
             };
+            Console.WriteLine(JsonSerializer.Serialize(hello));
             ws.Send(JsonSerializer.Serialize(hello));
             while (true)
             {
