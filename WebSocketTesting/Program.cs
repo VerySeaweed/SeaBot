@@ -27,6 +27,7 @@ namespace WebSocketTesting
             ws.Connect();
             ApiText.ApiTextHello hello = new()
             {
+                AccessCode = "sea",
                 Action = "hello",
                 StatusCode = EStatusCode.NotResponse,
                 Type = EMessageType.Hello
