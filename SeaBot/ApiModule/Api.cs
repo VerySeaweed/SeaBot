@@ -33,15 +33,14 @@ namespace SeaBot.ApiModule
             Server.Stop();
         }
 
-        public class ApiWebSocketBehavior : WebSocketBehavior
+        protected class ApiWebSocketBehavior : WebSocketBehavior
         {
-
-            public List<WebSocketSharp.WebSocket> Sockets = new();
+            protected List<WebSocketSharp.WebSocket> sockets = new();
 
             protected override void OnOpen()
             {
                 base.OnOpen();
-                
+                sockets.Add(Context.WebSocket);
             }
 
             protected override void OnMessage(MessageEventArgs e)
