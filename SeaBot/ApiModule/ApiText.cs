@@ -46,31 +46,34 @@ namespace SeaBot.ApiModule
         }
 
 
-        public class ApiTextHello : ApiText
+        public class Hello : ApiText
         {
-            public string Hello { get; set; }
-
-            public ApiTextHello()
+            public Hello()
             {
-                Hello = "Hello";
+                Data = "Hello";
                 StatusCode = EStatusCode.Hello;
             }
         }
 
-        public class ApiTextRequest : ApiText
+        public class Request : ApiText
         {
-            public ApiTextRequest()
+            public Request()
             {
                 StatusCode = EStatusCode.NotResponse;
             }
         }
 
-        public class ApiTextResponse : ApiText
+        public class Response : ApiText
         {
-            public ApiTextResponse()
+            public Response()
             {
                 StatusCode = EStatusCode.Success;
             }
+        }
+
+        public class Message
+        {
+
         }
     }
 }

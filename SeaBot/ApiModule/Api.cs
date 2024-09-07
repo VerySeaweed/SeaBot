@@ -57,12 +57,12 @@ namespace SeaBot.ApiModule
                     switch (text.Type)
                     {
                         case EMessageType.Hello:
-                            var hello = JsonSerializer.Deserialize<ApiText.ApiTextHello>(e.Data);
+                            var hello = JsonSerializer.Deserialize<ApiText.Hello>(e.Data);
                             if (hello != null)
                                 Hello(hello);
                             break;
                         case EMessageType.Request:
-                            var request = JsonSerializer.Deserialize<ApiText.ApiTextRequest>(e.Data);
+                            var request = JsonSerializer.Deserialize<ApiText.Request>(e.Data);
                             break;
                         case EMessageType.Response:
                             break;
@@ -92,11 +92,11 @@ namespace SeaBot.ApiModule
                 logger.Info($"Connection closed. Reason: {e.Reason}", "Api");
             }
 
-            protected void Hello(ApiText.ApiTextHello text)
+            protected void Hello(ApiText.Hello text)
             {
                 if (text == null)
                     return;
-                ApiText.ApiTextHello hello = new()
+                ApiText.Hello hello = new()
                 {
                     Action = "response",
                     Guid = text.Guid,
@@ -106,11 +106,11 @@ namespace SeaBot.ApiModule
                 Send(JsonSerializer.Serialize(hello));
             }
 
-            protected void Request(ApiText.ApiTextRequest request)
+            protected void Request(ApiText.Request request)
             {
                 if (request == null)
                     return;
-                if (request.Action=="get_frienf_list")
+                if (request.Action=="send_private_msg")
                 {
 
                 }
