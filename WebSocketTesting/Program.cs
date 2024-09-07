@@ -1,7 +1,19 @@
-﻿using System.Net.WebSockets;
+﻿using WebSocketSharp;
+using SeaBot.ApiModule;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace WebSocketTesting
 {
+    enum EStatusCode
+    {
+        Success = 0,
+        Hello,
+        Processing,
+        Failed,
+        NotResponse = -1,
+    }
+
     internal class Program
     {
         static void Main(string[] args)
@@ -11,32 +23,28 @@ namespace WebSocketTesting
 
         static async void Process()
         {
-            var socket = new ClientWebSocket();
-            socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(500);
-            Console.WriteLine(socket.State);
-            Uri uri = new Uri("ws://127.0.0.1:8082/");
-            Console.WriteLine(uri.Host + ":" + uri.Port);
-            await socket.ConnectAsync(new Uri("ws://127.0.0.1:8082/"), CancellationToken.None);
-            await KeepConnectionActive(socket);
-            Console.WriteLine(socket.State);
-            Console.ReadKey();
-            while (true)
+            using WebSocket ws = new("ws://127.0.0.1:8082/ws");
+            ws.OnOpen += (sender, e) => 
             {
-                await socket.SendAsync(new byte[] { 1, 1, 1 }, WebSocketMessageType.Text, false, new CancellationToken());
-                Console.WriteLine("Sent");
-                Thread.Sleep(5000);
-                await socket.ReceiveAsync(new ArraySegment<byte>(), new CancellationToken());
-            }
-        }
-
-        static async Task KeepConnectionActive(ClientWebSocket clientWebSocket)
-        {
-            if (clientWebSocket.State == WebSocketState.Open)
+                Console.WriteLine("Connected to the server.");
+            };
+            ws.OnClose += (sender, e) =>
             {
-                // 这里可以发送和接收消息
-                Console.WriteLine("Press any key to exit...");
-                await Task.Run(() => Console.ReadKey());
-            }
+                Console.WriteLine("Connection closed");
+            };
+            ws.OnMessage += (sender, e) => 
+            {
+                Console.WriteLine("Received: " + e.Data);
+            };
+            ws.Connect();
+            ApiText.ApiTextHello hello = new()
+            {
+                Action = "hello",
+                StatusCode = (int)EStatusCode.NotResponse
+            };
+            ws.Send(JsonSerializer.Serialize(hello));
+            Console.ReadLine();
+            ws.Close();
         }
     }
 }
