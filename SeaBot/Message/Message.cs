@@ -100,6 +100,29 @@ namespace SeaBot.Message
                 logger.Info("Send a message to friend: " + old.FriendUin, "Message.Send");
             }
         }
+
+        public async static void SendMessage(MessageBuilder chain)
+        {
+            Random r = new Random();
+            char[] randomCode = new char[8];
+            for (int i = 0; i < 8; i++)
+            {
+                randomCode[i] = (char)r.Next(0, 1000);
+            }
+            chain.Text("\n随机码：" + new string(randomCode));
+            var message = chain.Build();
+            Thread.Sleep(r.Next(1000, 3000));
+            LastResult = await Program.Bot._bot.SendMessage(message);
+            var logger = new Logger();
+            if (message.GroupUin != null)
+            {
+                logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
+            }
+            else if (message.GroupUin == null)
+            {
+                logger.Info("Send a message to friend: " + message.FriendUin, "Message.Send");
+            }
+        }
     }
 
     internal class LimitUin

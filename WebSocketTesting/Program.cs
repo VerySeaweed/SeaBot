@@ -9,6 +9,8 @@ namespace WebSocketTesting
     {
         static string? Access;
 
+        static uint? HeartInterval;
+
         static void Main(string[] args)
         {
             Process();
@@ -29,7 +31,7 @@ namespace WebSocketTesting
             ws.Connect();
             ApiText.Hello hello = new()
             {
-                AccessCode = "sea",
+                AccessCode = null,
                 Action = "hello",
                 StatusCode = EStatusCode.NotResponse,
                 Type = EMessageType.Hello
@@ -38,8 +40,12 @@ namespace WebSocketTesting
             ws.Send(JsonSerializer.Serialize(hello));
             while (true)
             {
-                ws.Ping();
-                Thread.Sleep(5000);
+                ApiText.Heart heart = new()
+                {
+                    AccessCode = Access
+                };
+                ws.Send(JsonSerializer.Serialize(heart));
+                Thread.Sleep(Convert.ToInt32(HeartInterval));
                 if (!ws.IsAlive)
                 {
                     ws.Close();
@@ -55,7 +61,11 @@ namespace WebSocketTesting
             if (text != null && text.Type == EMessageType.Hello)
             {
                 var hello = JsonSerializer.Deserialize<ApiText.Hello>(e.Data);
-                Access = hello.Data as string;
+                if (hello != null)
+                {
+                    Access = hello.Data as string;
+                    HeartInterval = hello.HeartInterval;
+                }
             }
             else if (text != null && text.AccessCode == Access)
             {

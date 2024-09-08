@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.ComponentModel.DataAnnotations;
+using Lagrange.Core.Message;
+using Lagrange.Core.Message.Entity;
 
 namespace SeaBot.ApiModule
 {
@@ -38,6 +40,8 @@ namespace SeaBot.ApiModule
         {
             protected List<WebSocketSharp.WebSocket> sockets = new();
 
+            protected DateTime lastHeart;
+
             protected override void OnOpen()
             {
                 base.OnOpen();
@@ -50,16 +54,13 @@ namespace SeaBot.ApiModule
             {
                 Logger logger = new();
                 base.OnMessage(e);
-                logger.Info("Receive a message.", "Api");
+                logger.Info("Receive a api request.", "Api");
                 var text = JsonSerializer.Deserialize<ApiText>(e.Data);
                 if (text != null && text.AccessCode == Program.Bot.Config.AccessCode)
                 {
                     switch (text.Type)
                     {
                         case EMessageType.Hello:
-                            var hello = JsonSerializer.Deserialize<ApiText.Hello>(e.Data);
-                            if (hello != null)
-                                Hello(hello);
                             break;
                         case EMessageType.Request:
                             var request = JsonSerializer.Deserialize<ApiText.Request>(e.Data);
@@ -67,6 +68,8 @@ namespace SeaBot.ApiModule
                         case EMessageType.Response:
                             break;
                         case EMessageType.Event:
+                            break;
+                        case EMessageType.Heart:
                             break;
                         default:
                             break;
@@ -78,6 +81,12 @@ namespace SeaBot.ApiModule
                     {
                         logger.Warning("Received a null message", "Api");
                     }
+                    else if (text.Type == EMessageType.Hello)
+                    {
+                        var hello = JsonSerializer.Deserialize<ApiText.Hello>(e.Data);
+                        if (hello != null)
+                            Hello(hello);
+                    }
                     else if (text.AccessCode != Program.Bot.Config.AccessCode)
                     {
                         logger.Warning("Access code is incorrect", "Api");
@@ -88,6 +97,13 @@ namespace SeaBot.ApiModule
             protected override void OnClose(CloseEventArgs e)
             {
                 base.OnClose(e);
+                foreach (var item in sockets)
+                {
+                    if (item.ReadyState == WebSocketSharp.WebSocketState.Closing || item.ReadyState == WebSocketSharp.WebSocketState.Closed)
+                    {
+                        sockets.Remove(item);
+                    }
+                }
                 Logger logger = new();
                 logger.Info($"Connection closed. Reason: {e.Reason}", "Api");
             }
@@ -101,7 +117,8 @@ namespace SeaBot.ApiModule
                     Action = "response",
                     Guid = text.Guid,
                     StatusCode = EStatusCode.Hello,
-                    Type = EMessageType.Hello
+                    Type = EMessageType.Hello,
+                    HeartInterval = 5000
                 };
                 Send(JsonSerializer.Serialize(hello));
             }
@@ -110,9 +127,78 @@ namespace SeaBot.ApiModule
             {
                 if (request == null)
                     return;
-                if (request.Action=="send_private_msg")
+                if (request.Action == "send_private_msg")
                 {
+                    ApiText.Message? origin = request.Data as ApiText.Message;
+                    if (origin != null)
+                    {
+                        var message = MessageBuilder.Friend(origin.FriendUin);
+                        foreach (var item in origin.messageEntity)
+                        {
+                            if (item is ApiText.Message.TextEntity)
+                            {
+                                var temp = item as ApiText.Message.TextEntity;
+                                message.Text(temp.Text);
+                            }
+                            else if (item is ApiText.Message.ImageEntity)
+                            {
+                                var temp = item as ApiText.Message.ImageEntity;
+                                message.Image(temp.ImagePath);
+                            }
+                            else if (item is ApiText.Message.ForwardEntity)
+                            {
+                                var temp = item as ApiText.Message.ForwardEntity;
+                                message.Add(new ForwardEntity() { Sequence = temp.Sequence });
+                            }
+                            else if (item is ApiText.Message.MentionEntity)
+                            {
+                                var temp = item as ApiText.Message.MentionEntity;
+                                message.Mention(temp.TargetUin);
+                            }
+                        }
+                        Message.Message.SendMessage(message);
+                    }
+                }
+                else if (request.Action == "send_group_msg")
+                {
+                    ApiText.Message? origin = request.Data as ApiText.Message;
+                    if (origin != null)
+                    {
+                        var message = MessageBuilder.Group(Convert.ToUInt32(origin.GroupUin));
+                        foreach (var item in origin.messageEntity)
+                        {
+                            if (item is ApiText.Message.TextEntity)
+                            {
+                                var temp = item as ApiText.Message.TextEntity;
+                                message.Text(temp.Text);
+                            }
+                            else if (item is ApiText.Message.ImageEntity)
+                            {
+                                var temp = item as ApiText.Message.ImageEntity;
+                                message.Image(temp.ImagePath);
+                            }
+                            else if (item is ApiText.Message.ForwardEntity)
+                            {
+                                var temp = item as ApiText.Message.ForwardEntity;
+                                message.Add(new ForwardEntity() { Sequence = temp.Sequence });
+                            }
+                            else if (item is ApiText.Message.MentionEntity)
+                            {
+                                var temp = item as ApiText.Message.MentionEntity;
+                                message.Mention(temp.TargetUin);
+                            }
+                        }
+                        Message.Message.SendMessage(message);
+                    }
+                }
+            }
 
+            protected void Heart(ApiText.Heart heart)
+            {
+                if ((heart.SendTime - DateTime.Now) <= TimeSpan.FromSeconds(2))
+                {
+                    Logger logger = new();
+                    logger.Info("!", "!");
                 }
             }
         }

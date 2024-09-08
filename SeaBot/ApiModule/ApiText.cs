@@ -13,6 +13,7 @@ namespace SeaBot.ApiModule
         Processing,
         Failed,
         NotResponse=-1,
+        Heart=4,
     }
     public enum EMessageType
     {
@@ -20,6 +21,7 @@ namespace SeaBot.ApiModule
         Request,
         Response,
         Event,
+        Heart,
     }
     
     public class ApiText
@@ -48,10 +50,14 @@ namespace SeaBot.ApiModule
 
         public class Hello : ApiText
         {
+            public uint? HeartInterval { get; internal set; }
+
             public Hello()
             {
                 Data = "Hello";
                 StatusCode = EStatusCode.Hello;
+                Type = EMessageType.Hello;
+                HeartInterval = null;
             }
         }
 
@@ -60,6 +66,7 @@ namespace SeaBot.ApiModule
             public Request()
             {
                 StatusCode = EStatusCode.NotResponse;
+                Type = EMessageType.Request;
             }
         }
 
@@ -68,12 +75,84 @@ namespace SeaBot.ApiModule
             public Response()
             {
                 StatusCode = EStatusCode.Success;
+                Type = EMessageType.Response;
+            }
+        }
+
+        public class Heart : ApiText
+        {
+            public Heart()
+            {
+                StatusCode = EStatusCode.Heart;
+                Type = EMessageType.Heart;
             }
         }
 
         public class Message
         {
+            public List<object> messageEntity { get; set; } = new List<object>();
 
+            public uint? GroupUin { get; set; }
+
+            public uint FriendUin { get; set; }
+
+
+            public void Text(string text)
+            {
+                messageEntity.Add(new TextEntity(text));
+            }
+
+            public void Image(string imagePath)
+            {
+                messageEntity.Add(new ImageEntity(imagePath));
+            }
+
+            public void Forward(uint sequence)
+            {
+                messageEntity.Add(new ForwardEntity(sequence));
+            }
+
+            public void Mention(uint targetUin)
+            {
+                messageEntity.Add(new MentionEntity(targetUin));
+            }
+
+
+            public class TextEntity
+            {
+                public string Text { get; set; }
+                public TextEntity(string text)
+                {
+                    this.Text = text;
+                }
+            }
+
+            public class ImageEntity
+            {
+                public string ImagePath { get; set; }
+                public ImageEntity(string imagePath)
+                {
+                    this.ImagePath = imagePath;
+                }
+            }
+
+            public class ForwardEntity
+            {
+                public uint Sequence { get; set; }
+                public ForwardEntity(uint sequence)
+                {
+                    this.Sequence = sequence;
+                }
+            }
+
+            public class MentionEntity
+            {
+                public uint TargetUin { get; set; }
+                public MentionEntity(uint targetUin)
+                {
+                    this.TargetUin = targetUin;
+                }
+            }
         }
     }
 }
