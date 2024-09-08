@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.ComponentModel.DataAnnotations;
+using Lagrange.Core.Message;
+using Lagrange.Core.Message.Entity;
 
 namespace SeaBot.ApiModule
 {
@@ -110,9 +112,69 @@ namespace SeaBot.ApiModule
             {
                 if (request == null)
                     return;
-                if (request.Action=="send_private_msg")
+                if (request.Action == "send_private_msg")
                 {
-
+                    ApiText.Message? origin = request.Data as ApiText.Message;
+                    if (origin != null)
+                    {
+                        var message = MessageBuilder.Friend(origin.FriendUin);
+                        foreach (var item in origin.messageEntity)
+                        {
+                            if (item is ApiText.Message.TextEntity)
+                            {
+                                var temp = item as ApiText.Message.TextEntity;
+                                message.Text(temp.Text);
+                            }
+                            else if (item is ApiText.Message.ImageEntity)
+                            {
+                                var temp = item as ApiText.Message.ImageEntity;
+                                message.Image(temp.ImagePath);
+                            }
+                            else if (item is ApiText.Message.ForwardEntity)
+                            {
+                                var temp = item as ApiText.Message.ForwardEntity;
+                                message.Add(new ForwardEntity() { Sequence = temp.Sequence });
+                            }
+                            else if (item is ApiText.Message.MentionEntity)
+                            {
+                                var temp = item as ApiText.Message.MentionEntity;
+                                message.Mention(temp.TargetUin);
+                            }
+                        }
+                        Message.Message.SendMessage(message);
+                    }
+                }
+                else if (request.Action == "send_group_msg")
+                {
+                    ApiText.Message? origin = request.Data as ApiText.Message;
+                    if (origin != null)
+                    {
+                        var message = MessageBuilder.Group(Convert.ToUInt32(origin.GroupUin));
+                        foreach (var item in origin.messageEntity)
+                        {
+                            if (item is ApiText.Message.TextEntity)
+                            {
+                                var temp = item as ApiText.Message.TextEntity;
+                                message.Text(temp.Text);
+                            }
+                            else if (item is ApiText.Message.ImageEntity)
+                            {
+                                var temp = item as ApiText.Message.ImageEntity;
+                                message.Image(temp.ImagePath);
+                            }
+                            else if (item is ApiText.Message.ForwardEntity)
+                            {
+                                var temp = item as ApiText.Message.ForwardEntity;
+                                message.Add(new ForwardEntity() { Sequence = temp.Sequence });
+                            }
+                            else if (item is ApiText.Message.MentionEntity)
+                            {
+                                var temp = item as ApiText.Message.MentionEntity;
+                                message.Mention(temp.TargetUin);
+                            }
+                        }
+                        Message.Message.SendMessage(message);
+                    }
                 }
             }
         }

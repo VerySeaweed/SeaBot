@@ -73,7 +73,69 @@ namespace SeaBot.ApiModule
 
         public class Message
         {
+            public List<object> messageEntity { get; set; } = new List<object>();
 
+            public uint? GroupUin { get; set; }
+
+            public uint FriendUin { get; set; }
+
+
+            public void Text(string text)
+            {
+                messageEntity.Add(new TextEntity(text));
+            }
+
+            public void Image(string imagePath)
+            {
+                messageEntity.Add(new ImageEntity(imagePath));
+            }
+
+            public void Forward(uint sequence)
+            {
+                messageEntity.Add(new ForwardEntity(sequence));
+            }
+
+            public void Mention(uint targetUin)
+            {
+                messageEntity.Add(new MentionEntity(targetUin));
+            }
+
+
+            public class TextEntity
+            {
+                public string Text { get; set; }
+                public TextEntity(string text)
+                {
+                    this.Text = text;
+                }
+            }
+
+            public class ImageEntity
+            {
+                public string ImagePath { get; set; }
+                public ImageEntity(string imagePath)
+                {
+                    this.ImagePath = imagePath;
+                }
+            }
+
+            public class ForwardEntity
+            {
+                public uint Sequence { get; set; }
+                public ForwardEntity(uint sequence)
+                {
+                    this.Sequence = sequence;
+                }
+            }
+
+            public class MentionEntity
+            {
+                public uint TargetUin { get; set; }
+                public MentionEntity(uint targetUin)
+                {
+                    this.TargetUin = targetUin;
+                }
+            }
         }
     }
 }
