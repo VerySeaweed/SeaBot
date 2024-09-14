@@ -6,26 +6,39 @@ using System.Threading.Tasks;
 
 namespace SeaBot.ApiModule
 {
-    enum EStatusCode
+    public enum EStatusCode
     {
         Success=0,
         Hello,
         Processing,
         Failed,
         NotResponse=-1,
+        Heart=4,
+    }
+    public enum EMessageType
+    {
+        Hello=0,
+        Request,
+        Response,
+        Event,
+        Heart,
     }
     
     public class ApiText
     {
-        public DateTime SendTime { get; protected set; }
+        public string? AccessCode { get; set; }
+        
+        public DateTime SendTime { get; private set; }
         
         public string? Action { get; set; }
 
-        public int StatusCode { get; protected set; }
+        public EStatusCode StatusCode { get; set; }
 
-        public Guid Guid { get; protected set; }
+        public Guid Guid { get; set; }
 
-        public EventArgs? Args { get; set; }
+        public object? Data { get; set; }
+
+        public EMessageType Type { get; set; }
 
 
         public ApiText()
@@ -35,30 +48,110 @@ namespace SeaBot.ApiModule
         }
 
 
-        public class ApiTextHello : ApiText
+        public class Hello : ApiText
         {
-            public string Hello { get; set; }
+            public uint? HeartInterval { get; internal set; }
 
-            public ApiTextHello()
+            public Hello()
             {
-                Hello = "Hello";
-                StatusCode = (int)EStatusCode.Hello;
+                Data = "Hello";
+                StatusCode = EStatusCode.Hello;
+                Type = EMessageType.Hello;
+                HeartInterval = null;
             }
         }
 
-        public class ApiTextRequest : ApiText
+        public class Request : ApiText
         {
-            public ApiTextRequest()
+            public Request()
             {
-                StatusCode = (int)EStatusCode.NotResponse;
+                StatusCode = EStatusCode.NotResponse;
+                Type = EMessageType.Request;
             }
         }
 
-        public class ApiTextResponse : ApiText
+        public class Response : ApiText
         {
-            public ApiTextResponse()
+            public Response()
             {
-                StatusCode = (int)EStatusCode.Success;
+                StatusCode = EStatusCode.Success;
+                Type = EMessageType.Response;
+            }
+        }
+
+        public class Heart : ApiText
+        {
+            public Heart()
+            {
+                StatusCode = EStatusCode.Heart;
+                Type = EMessageType.Heart;
+            }
+        }
+
+        public class Message
+        {
+            public List<object> messageEntity { get; set; } = new List<object>();
+
+            public uint? GroupUin { get; set; }
+
+            public uint FriendUin { get; set; }
+
+
+            public void Text(string text)
+            {
+                messageEntity.Add(new TextEntity(text));
+            }
+
+            public void Image(string imagePath)
+            {
+                messageEntity.Add(new ImageEntity(imagePath));
+            }
+
+            public void Forward(uint sequence)
+            {
+                messageEntity.Add(new ForwardEntity(sequence));
+            }
+
+            public void Mention(uint targetUin)
+            {
+                messageEntity.Add(new MentionEntity(targetUin));
+            }
+
+
+            public class TextEntity
+            {
+                public string Text { get; set; }
+                public TextEntity(string text)
+                {
+                    this.Text = text;
+                }
+            }
+
+            public class ImageEntity
+            {
+                public string ImagePath { get; set; }
+                public ImageEntity(string imagePath)
+                {
+                    this.ImagePath = imagePath;
+                }
+            }
+
+            public class ForwardEntity
+            {
+                public uint Sequence { get; set; }
+                public ForwardEntity(uint sequence)
+                {
+                    this.Sequence = sequence;
+                }
+            }
+
+            public class MentionEntity
+            {
+                public uint TargetUin { get; set; }
+                public MentionEntity(uint targetUin)
+                {
+                    this.TargetUin = targetUin;
+                }
             }
         }
     }

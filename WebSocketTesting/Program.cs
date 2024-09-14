@@ -1,41 +1,75 @@
-﻿using System.Net.WebSockets;
+﻿using WebSocketSharp;
+using SeaBot.ApiModule;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace WebSocketTesting
 {
     internal class Program
     {
+        static string? Access;
+
+        static uint? HeartInterval;
+
         static void Main(string[] args)
         {
             Process();
         }
 
-        static async void Process()
+        static void Process()
         {
-            var socket = new ClientWebSocket();
-            socket.Options.KeepAliveInterval = TimeSpan.FromSeconds(500);
-            Console.WriteLine(socket.State);
-            Uri uri = new Uri("ws://127.0.0.1:8082/");
-            Console.WriteLine(uri.Host + ":" + uri.Port);
-            await socket.ConnectAsync(new Uri("ws://127.0.0.1:8082/"), CancellationToken.None);
-            await KeepConnectionActive(socket);
-            Console.WriteLine(socket.State);
-            Console.ReadKey();
+            using WebSocket ws = new("ws://127.0.0.1:8082/ws");
+            ws.OnOpen += (sender, e) => 
+            {
+                Console.WriteLine("Connected to the server.");
+            };
+            ws.OnClose += (sender, e) =>
+            {
+                Console.WriteLine("Connection closed");
+            };
+            ws.OnMessage += Get;
+            ws.Connect();
+            ApiText.Hello hello = new()
+            {
+                AccessCode = null,
+                Action = "hello",
+                StatusCode = EStatusCode.NotResponse,
+                Type = EMessageType.Hello
+            };
+            Console.WriteLine(JsonSerializer.Serialize(hello));
+            ws.Send(JsonSerializer.Serialize(hello));
             while (true)
             {
-                await socket.SendAsync(new byte[] { 1, 1, 1 }, WebSocketMessageType.Text, false, new CancellationToken());
-                Console.WriteLine("Sent");
-                Thread.Sleep(5000);
-                await socket.ReceiveAsync(new ArraySegment<byte>(), new CancellationToken());
+                ApiText.Heart heart = new()
+                {
+                    AccessCode = Access
+                };
+                ws.Send(JsonSerializer.Serialize(heart));
+                Thread.Sleep(Convert.ToInt32(HeartInterval));
+                if (!ws.IsAlive)
+                {
+                    ws.Close();
+                    break;
+                }
             }
         }
 
-        static async Task KeepConnectionActive(ClientWebSocket clientWebSocket)
+        static void Get(object? sender,MessageEventArgs e)
         {
-            if (clientWebSocket.State == WebSocketState.Open)
+            Console.WriteLine(e.Data);
+            var text = JsonSerializer.Deserialize<ApiText>(e.Data);
+            if (text != null && text.Type == EMessageType.Hello)
             {
-                // 这里可以发送和接收消息
-                Console.WriteLine("Press any key to exit...");
-                await Task.Run(() => Console.ReadKey());
+                var hello = JsonSerializer.Deserialize<ApiText.Hello>(e.Data);
+                if (hello != null)
+                {
+                    Access = hello.Data as string;
+                    HeartInterval = hello.HeartInterval;
+                }
+            }
+            else if (text != null && text.AccessCode == Access)
+            {
+
             }
         }
     }
