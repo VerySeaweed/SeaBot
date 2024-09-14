@@ -152,11 +152,11 @@ namespace SeaBot
             bot.Invoker.OnFriendMessageReceived += EventProcess.BotReceiveMessage;
             bot.Invoker.OnGroupMessageReceived += EventProcess.BotReceiveMessage;
             logger.Info("If bot's log do not show message \"Bot login successfully.\", please restart bot.", _name);
-            if (Config.UseApi)
-            {
-                _api = new Api();
-                _api.StartListener();
-            }
+            //if (Config.UseApi)
+            //{
+            //    _api = new Api();
+            //    _api.StartListener();
+            //}
         }
 
         public void AddData(object data)
