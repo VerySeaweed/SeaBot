@@ -213,23 +213,23 @@ namespace SeaBot.Module
 
             public void PrintList(MessageBuilder message)
             {
-                string open = "";
+                string open = "\n";
                 foreach (var item in _opened_characters)
                 {
                     open += $"\'{item}\',";
                 }
-                string a = "";
+                string a = "\n";
                 for (int i = 0; i < a_group.Count; i++)
                 {
                     a += $"a{i + 1} {a_group[i]}\n";
                 }
-                string s = "";
+                string s = "\n";
                 for (int i = 0; i < scores.Length; i++)
                 {
                     s += $"{_membersNick[i]}：{scores[i]}\n";
                 }
                 message.Mention(_membersUin[(int)turns]);
-                message.Text($"该你了\n已开字符：{open}\nA组：{a}\n\n玩家得分：{s}");
+                message.Text($" 该你了\n已开字符：{open}\nA组：{a}\n\n玩家得分：{s}");
             }
 
             public void SetRange(string range, MessageBuilder message)
@@ -240,7 +240,7 @@ namespace SeaBot.Module
                     if (item != null && File.Exists(Path.Combine(_songBasePath, item + ".json")))
                     {
                         message.Text($"已加载曲库：{item}\n");
-                        _songBases.Add(JsonSerializer.Deserialize<SongBase>(Path.Combine(_songBasePath, item + ".json")));
+                        _songBases.Add(JsonSerializer.Deserialize<SongBase>(Files.ReadInFiles(Path.Combine(_songBasePath, item + ".json"))));
                     }
                     else
                     {
@@ -314,9 +314,9 @@ namespace SeaBot.Module
                     char[] temps = a_group[i].ToCharArray();
                     for (int j = 0; j < temps.Length; j++)
                     {
-                        if (temps[i] != ' ')
+                        if (temps[j] != ' ')
                         {
-                            temps[i] = '*';
+                            temps[j] = '*';
                         }
                     }
                     a_group[i] = new string(temps);
