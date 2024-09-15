@@ -94,6 +94,10 @@ namespace SeaBot.Module
                                 break;
                         }
                     }
+                    else
+                    {
+                        message.Text("无法找到房间");
+                    }
                 }
             }
             catch (Exception e)
