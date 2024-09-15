@@ -97,8 +97,9 @@ namespace SeaBot.Message
             chain.Text("\n随机码：" + new string(randomCode));
             var message = chain.Build();
             Thread.Sleep(r.Next(1000, 3000));
-            LastResult = await Program.Bot._bot.SendMessage(message);
             var logger = new Logger();
+            logger.Info("Message.Seng request sent", "Message.Send");
+            LastResult = await Program.Bot._bot.SendMessage(message);
             if (message.GroupUin != null)
             {
                 logger.Info("Send a message to group: " + old.GroupUin, "Message.Send");
@@ -119,9 +120,10 @@ namespace SeaBot.Message
             }
             chain.Text("\n随机码：" + new string(randomCode));
             var message = chain.Build();
-            Thread.Sleep(r.Next(1000, 3000));
-            LastResult = await Program.Bot._bot.SendMessage(message);
+            Thread.Sleep(r.Next(1000, 5000));
             var logger = new Logger();
+            logger.Info("Message.Seng request sent", "Message.Send");
+            LastResult = await Program.Bot._bot.SendMessage(message);
             if (message.GroupUin != null)
             {
                 logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
