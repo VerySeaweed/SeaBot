@@ -132,6 +132,7 @@ namespace SeaBot.Module
         {
             public string Name { get; set; }
             public string Composer { get; set; }
+            public string[]? Alias { get; set; }
             public Song()
             {
                 this.Name = string.Empty;
@@ -325,6 +326,16 @@ namespace SeaBot.Module
 
             public async void PlayerJoin(uint FriendUin,MessageBuilder message)
             {
+                if (StartStatus)
+                {
+                    message.Text("游戏开始后不能加入游戏");
+                    return;
+                }
+                else if (_membersUin.Contains(FriendUin))
+                {
+                    message.Text("不能重复加入游戏");
+                    return;
+                }
                 _membersUin.Add(FriendUin);
                 var members = await Program.Bot._bot.FetchMembers(this.RoomNumber);
                 foreach (var member in members)
@@ -339,6 +350,11 @@ namespace SeaBot.Module
 
             public async void PlayerLeave(uint FriendUin,MessageBuilder message)
             {
+                if (!_membersUin.Contains(FriendUin))
+                {
+                    message.Text("不能重复退出游戏");
+                    return;
+                }
                 _membersUin.Remove(FriendUin);
                 var members = await Program.Bot._bot.FetchMembers(this.RoomNumber);
                 foreach (var member in members)

@@ -17,11 +17,23 @@ namespace SongBaseGenerator
             for (int i = 0; i < strings_1.Length; i++)
             {
                 string[] strs = strings_1[i].Split(';');
-                temp.Songs.Add(new Song()
+                if (strs.Length == 3)
                 {
-                    Name = strs[0],
-                    Composer = strs[1]
-                });
+                    temp.Songs.Add(new Song()
+                    {
+                        Name = strs[0].Trim(),
+                        Composer = strs[1].Trim(),
+                        Alias = strs[2].Trim().Split(':')
+                    });
+                }
+                else
+                {
+                    temp.Songs.Add(new Song()
+                    {
+                        Name = strs[0].Trim(),
+                        Composer = strs[1].Trim()
+                    });
+                }
             }
             Console.WriteLine("name:");
             string name = Console.ReadLine();
@@ -45,6 +57,7 @@ namespace SongBaseGenerator
         {
             public string Name { get; set; }
             public string Composer { get; set; }
+            public string[]? Alias { get; set; }
             public Song()
             {
                 this.Name = string.Empty;
