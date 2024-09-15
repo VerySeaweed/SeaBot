@@ -240,7 +240,7 @@ namespace SeaBot.Module
                     if (item != null && File.Exists(Path.Combine(_songBasePath, item + ".json")))
                     {
                         message.Text($"已加载曲库：{item}\n");
-                        _songBases.Add(JsonSerializer.Deserialize<SongBase>(Path.Combine(_songBasePath, item + ".json")));
+                        _songBases.Add(JsonSerializer.Deserialize<SongBase>(Files.ReadInFiles(Path.Combine(_songBasePath, item + ".json"))));
                     }
                     else
                     {
