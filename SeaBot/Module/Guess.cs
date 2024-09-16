@@ -228,6 +228,7 @@ namespace SeaBot.Module
                 for (int i = 0; i < scores.Length; i++)
                 {
                     scores[i] = 0;
+                    opened[i] = false;
                 }
                 for (int i = 0; i < opened.Length; i++)
                 {
