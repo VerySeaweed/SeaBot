@@ -228,12 +228,14 @@ namespace SeaBot.Module
                 for (int i = 0; i < scores.Length; i++)
                 {
                     scores[i] = 0;
+                    opened[i] = false;
                 }
                 for (int i = 0; i < opened.Length; i++)
                 {
                     opened[i] = false;
                 }
                 turns = 0;
+                RandomSongs();
                 PrintList(message);
             }
 
@@ -262,6 +264,8 @@ namespace SeaBot.Module
                     return;
                 }
                 _opened_characters.Add(c);
+                bool scr = false;
+                uint sc = 0;
                 for (int i = 0; i < a_origin.Count; i++)
                 {
                     char[] chars_o = a_origin[i].ToCharArray();
@@ -272,23 +276,36 @@ namespace SeaBot.Module
                             char[] chars_g = a_group[i].ToCharArray();
                             chars_g[j] = chars_o[j];
                             a_group[i] = new string(chars_g);
+                            scr = true;
+                            sc += 1;
                         }
                         else if (chars_o[j].ToString().ToLower() == c.ToString())
                         {
                             char[] chars_g = a_group[i].ToCharArray();
                             chars_g[j] = chars_o[j];
                             a_group[i] = new string(chars_g);
+                            scr = true;
+                            sc += 1;
                         }
                         else if (chars_o[j].ToString().ToUpper() == c.ToString())
                         {
                             char[] chars_g = a_group[i].ToCharArray();
                             chars_g[j] = chars_o[j];
                             a_group[i] = new string(chars_g);
+                            scr = true;
+                            sc += 1;
                         }
                     }
                 }
-                message.Text($"开字母：{c}\n");
-                scores[turns] += 1;
+                if (scr)
+                {
+                    if (sc > 5)
+                    {
+                        scores[turns] += 1;
+                    }
+                    scores[turns] += 1;
+                }
+                message.Text($"开字母{c} {_membersNick[(int)turns]}+{((sc > 5) ? 2 : (scr ? 1 : 0))}分\n");
                 turns++;
                 if (turns >= scores.Length)
                     turns = 0;
@@ -362,12 +379,8 @@ namespace SeaBot.Module
                     }
                 }
                 if (right)
-                {
-                    message.Text($"{s}正确\n");
                     scores[turns] += 5;
-                }
-                else
-                    message.Text($"{s}不正确\n");
+                message.Text($"{s} {(right ? " " : "不")}正确 {_membersNick[(int)turns]}+{(right ? 5 : 0)}分\n");
                 turns++;
                 if (turns >= scores.Length)
                     turns = 0;
@@ -440,7 +453,6 @@ namespace SeaBot.Module
                         message.Text($"无法加载{item}对应的命名空间\n");
                     }
                 }
-                RandomSongs();
             }
 
             public void SetCount(uint count, MessageBuilder message)
@@ -478,7 +490,6 @@ namespace SeaBot.Module
                 }
                 GuessCount = count;
                 message.Text("已设置曲目数量");
-                RandomSongs();
             }
 
             protected void RandomSongs()
