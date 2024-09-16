@@ -55,7 +55,7 @@ namespace SeaBot.Module
                 {
                     Help(chain, message);
                 }
-                else if (sub[1] == "create")
+                else if (sub[1] == "create" || sub[1] == "c")
                 {
                     logger.Info($"房间创建请求{chain.GroupUin}通过", _name);
                     _games.Add(new Game(Convert.ToUInt32(chain.GroupUin)));
