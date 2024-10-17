@@ -28,9 +28,9 @@ namespace SeaBot.Event
             logger.Warning("Bot log out by server.", "BotOfflineEvent");
             FileStream stream = new(@"keystore.json", FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             stream.Close();
-            File.Delete(@"keystore.json");
+            File.Delete(Path.Combine(Environment.CurrentDirectory, @"keystore.json"));
             Thread.Sleep(1000);
-            if (Program.Bot.Config.UseApi)
+            if (Program.Bot.Config.UseApi && Program.Bot._api != null)
             {
                 Program.Bot._api.StopListener();
             }
@@ -57,13 +57,6 @@ namespace SeaBot.Event
                     return;
                 }
                 logger.Info("Message passed whitelist check.", "MessageCheck");
-                foreach (var item in eventEntity.Chain)
-                {
-                    if (item is TextEntity text)
-                        logger.Info("Message is \"" + text.Text + "\"", "MessageEvent");
-                    else if (item is ImageEntity)
-                        logger.Info("Receive a image.", "MessageEvent");
-                }
                 Message.Message.CommandParse(eventEntity.Chain);
             }
             else if (e is GroupMessageEvent)
@@ -83,13 +76,6 @@ namespace SeaBot.Event
                     return;
                 }
                 logger.Info("Message passed whitelist check.", "MessageCheck");
-                foreach (var item in eventEntity.Chain)
-                {
-                    if (item is TextEntity text)
-                        logger.Info("Message is \"" + text.Text + "\" by " + eventEntity.Chain.FriendUin, "MessageEvent");
-                    else if (item is ImageEntity)
-                        logger.Info("Receive a image by " + eventEntity.Chain.FriendUin, "MessageEvent");
-                }
                 Message.Message.CommandParse(eventEntity.Chain);
             }
         }

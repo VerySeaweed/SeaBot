@@ -40,7 +40,7 @@ namespace SeaBot.Message
             }
             if (isCommand)
             {
-                logger.Info("Message include a command call.", _name);
+                logger.Info($"Call command: {message}", _name);
                 char[] tempc = message.ToCharArray();
                 tempc[0]=' ';
                 string temps = new string(tempc).Trim();
@@ -48,11 +48,12 @@ namespace SeaBot.Message
                 switch (commands[0])
                 {
                     case "ycm":
-                        var item = Program.Bot.TempData.Find(x => x is YouCarMa);
+                        var item_ycm = Program.Bot.TempData.Find(x => x is YouCarMa);
                         var ycm = new YouCarMa();
-                        if (item != null)
+                        if (item_ycm != null)
                         {
-                            ycm = item as YouCarMa;
+                            ycm = item_ycm as YouCarMa;
+                            Program.Bot.RemoveData(item_ycm);
                         }
                         ycm.ReceiveCommand(temps, chain);
                         Program.Bot.AddData(ycm);
@@ -66,15 +67,22 @@ namespace SeaBot.Message
                         help.ReceiveCommand(temps, chain);
                         break;
                     case "echo":
-                    default:
                         var echo = new Echo();
                         echo.Sendback(temps, chain);
                         break;
+                    case "g":
+                    case "guess":
+                        var item_guess = Program.Bot.TempData.Find(x => x is Guess);
+                        var guess = new Guess();
+                        if (item_guess != null)
+                        {
+                            guess = item_guess as Guess;
+                            Program.Bot.RemoveData(item_guess);
+                        }
+                        guess.ReceiveCommand(temps, chain);
+                        Program.Bot.AddData(guess);
+                        break;
                 }
-            }
-            else
-            {
-                logger.Info("Message do not include a command call.", _name);
             }
         }
 
@@ -89,8 +97,9 @@ namespace SeaBot.Message
             chain.Text("\n随机码：" + new string(randomCode));
             var message = chain.Build();
             Thread.Sleep(r.Next(1000, 3000));
-            LastResult = await Program.Bot._bot.SendMessage(message);
             var logger = new Logger();
+            logger.Info("Message.Seng request sent", "Message.Send");
+            LastResult = await Program.Bot._bot.SendMessage(message);
             if (message.GroupUin != null)
             {
                 logger.Info("Send a message to group: " + old.GroupUin, "Message.Send");
@@ -111,9 +120,10 @@ namespace SeaBot.Message
             }
             chain.Text("\n随机码：" + new string(randomCode));
             var message = chain.Build();
-            Thread.Sleep(r.Next(1000, 3000));
-            LastResult = await Program.Bot._bot.SendMessage(message);
+            Thread.Sleep(r.Next(1000, 5000));
             var logger = new Logger();
+            logger.Info("Message.Seng request sent", "Message.Send");
+            LastResult = await Program.Bot._bot.SendMessage(message);
             if (message.GroupUin != null)
             {
                 logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
