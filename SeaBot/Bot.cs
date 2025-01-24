@@ -120,7 +120,7 @@ namespace SeaBot
             bot.Invoker.OnBotOfflineEvent += EventProcess.BotOfflineCheck;
             if (FirstLogin || Config.UseQrCodeInsteadOfPassword)
             {
-                logger.Info("Because of your preference or you are trying logining on the first time. Use QrCode login now.", _name);
+                logger.Info($"Because {(FirstLogin ? "you are trying logining on the first time" : "")}{(Config.UseQrCodeInsteadOfPassword ? "of your preference" : "")}. Use QrCode login now.", _name);
                 var qc = await bot.FetchQrCode();//get qrcode
                 logger.Info("Please use your QQ app on your smartphone to scan the QrCode which should be open in your default photo app. If it doesn't work, open it from qrCode.png in currert path.", _name);
                 if (qc != null)

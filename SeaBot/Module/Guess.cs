@@ -223,6 +223,7 @@ namespace SeaBot.Module
                     return;
                 }
                 StartStatus = true;
+                RandomSongs();
                 scores = new int[_membersUin.Count];
                 opened = new bool[_chosen.Count];
                 for (int i = 0; i < scores.Length; i++)
@@ -235,7 +236,6 @@ namespace SeaBot.Module
                     opened[i] = false;
                 }
                 turns = 0;
-                RandomSongs();
                 PrintList(message);
             }
 
