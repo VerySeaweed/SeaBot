@@ -21,21 +21,23 @@ namespace SeaBot.Event
         public static void BotOnlineCheck(object sender, EventArgs e)
         {
             var logger = new Logger();
-            logger.Info("Bot log in Sucessfully.", "BotOnlineEvent");
+            logger.Info("登录成功", "BotOnlineEvent");
+        }
+
+        public static void BotCaptchaCheck(object sender, EventArgs e)
+        {
+            var logger = new Logger();
+            logger.Info("收到验证码", "BotCaptchaEvent");
         }
 
         public static void BotOfflineCheck(object sender, EventArgs e)
         {
             var logger = new Logger();
-            logger.Warning("Bot log out by server.", "BotOfflineEvent");
+            logger.Warning("服务器强制下线", "BotOfflineEvent");
             FileStream stream = new(@"keystore.json", FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             stream.Close();
             File.Delete(Path.Combine(Environment.CurrentDirectory, @"keystore.json"));
             Thread.Sleep(1000);
-            //if (bot.Config.UseApi && bot._api != null)
-            //{
-            //    bot._api.StopListener();
-            //}
             bot.Stop();
         }
 

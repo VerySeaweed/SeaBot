@@ -28,8 +28,8 @@ namespace SeaBot.Message
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
             message.Forward(chain);
-            message.Text("SeaBot v0.1.1 running.\nSystem OS:" + Environment.OSVersion);
-            message.Text("\nRunning time:" + (DateTime.Now - Message.bot.StartTime));
+            message.Text("SeaBot v0.1.3 running.\nSystem OS:" + Environment.OSVersion);
+            message.Text("\n运行时间" + (DateTime.Now - Message.bot.StartTime));
             return message;
         }
     }

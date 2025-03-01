@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using Lagrange;
+﻿using System.Text.Json;
 using Lagrange.Core;
 using Lagrange.Core.Common;
-using Lagrange.Core.Internal;
-using Lagrange.Core.Event;
 using Lagrange.Core.Message;
-using Lagrange.Core.Utility;
 using Lagrange.Core.Common.Interface;
 using Lagrange.Core.Common.Interface.Api;
 using System.Diagnostics;
-using Lagrange.Core.Utility.Extension;
 using SeaBot.Event;
-using SeaBot.Message;
 using Lagrange.Core.Common.Entity;
 
 namespace SeaBot
@@ -51,6 +40,7 @@ namespace SeaBot
             var log = new Logger();
             const string _initName = "InitManager";
             bool configExisted = false;
+            Files.Create(@"log.txt");
             if (!File.Exists(@"device.json"))
             {
                 BotDeviceInfo device = BotDeviceInfo.GenerateInfo();
@@ -59,8 +49,8 @@ namespace SeaBot
                 Files.WriteInFiles(JsonSerializer.Serialize(device), @"device.json");
                 configExisted = true;
                 this._deviceInfo = device;
-                log.Warning("Missing device.json", _initName);
-                log.Info("Generated a device.json", _initName);
+                log.Warning("device.json缺失", _initName);
+                log.Info("已生成device.json", _initName);
             }
             else
             {
@@ -74,14 +64,11 @@ namespace SeaBot
                     CommandPrefix = new char[] { '.', '/', '_' },
                     UseQrCodeInsteadOfPassword = true,
                     LimitUinList = new Message.LimitUin(),
-                    UseApi = false,
-                    ApiListenedPort = 8082,
-                    AccessCode = "please edit this to create you own access code."
                 };
                 config.SaveSelf();//save config
                 this.Config = config;
-                log.Warning("Missing config.json", _initName);
-                log.Info("Generated a config.json", _initName);
+                log.Warning("config.json缺失", _initName);
+                log.Info("已生成config.json", _initName);
                 configExisted = true;
             }
             else
@@ -100,7 +87,6 @@ namespace SeaBot
                 };
                 this.FirstLogin = true;
             }
-            Files.Create(@"log.txt");
             return configExisted;
         }
 
@@ -112,19 +98,20 @@ namespace SeaBot
                 const string _name = "BotStartManager";
                 if (Init())//check files(config.json/device.json)
                 {
-                    logger.Info("Please edit config.json and restart the program.", _name);
+                    logger.Info("config.json文件已生成，请修改其中的设置后重新启动", _name);
                     return;
                 }
-                logger.Info("Initing...", _name);
+                logger.Info("初始化……", _name);
                 var bot = BotFactory.Create(new BotConfig(), _deviceInfo, _keyStore);//create bot
                 this._bot = bot;
                 bot.Invoker.OnBotOnlineEvent += EventProcess.BotOnlineCheck;
                 bot.Invoker.OnBotOfflineEvent += EventProcess.BotOfflineCheck;
+                bot.Invoker.OnBotCaptchaEvent += EventProcess.BotCaptchaCheck;
                 if (FirstLogin || Config.UseQrCodeInsteadOfPassword)
                 {
-                    logger.Info($"Because {(FirstLogin ? "you are trying logining on the first time" : "")}{(Config.UseQrCodeInsteadOfPassword ? "of your preference" : "")}. Use QrCode login now.", _name);
+                    logger.Info($"由于{(FirstLogin ? "这是第一次启动" : "")}{(Config.UseQrCodeInsteadOfPassword ? "你的偏好设置" : "")}，将使用扫码登录", _name);
                     var qc = await bot.FetchQrCode();//get qrcode
-                    logger.Info("Please use your QQ app on your smartphone to scan the QrCode which should be open in your default photo app. If it doesn't work, open it from qrCode.png in currert path.", _name);
+                    logger.Info("请使用手机QQ扫描即将弹出的二维码（可能需要一点时间），如果没能成功打开请在SeaBot根目录下找到qrcode.png并打开进行扫描", _name);
                     if (qc != null)
                     {
                         var (uri, qrCodeByte) = qc.Value;
@@ -132,17 +119,18 @@ namespace SeaBot
                         await fs.WriteAsync(qrCodeByte, new CancellationToken());
                         Process.Start(new ProcessStartInfo
                         {
-                            Arguments = ".\\qrCode.png",
+                            Arguments = "-Command \".\\qrCode.png\"",
                             CreateNoWindow = true,
                             FileName = "powershell"
                         });//use app to open qrcode
-                        logger.Info("Waiting for logining.", _name);
+                        logger.Info("等待登录完成……", _name);
                     }
                     await bot.LoginByQrCode();//wait qrcode login
+                    
                 }
                 else if (!Config.UseQrCodeInsteadOfPassword)
                 {
-                    logger.Info("Because of your preference. Use keystore login now.", _name);
+                    logger.Info("由于你的偏好设置，将使用已保存的Token登录，如不能成功登录，请删除SeaBot根目录下的keystore.json文件再试", _name);
                     await bot.LoginByPassword();//wait password/keystore login
                 }
                 _keyStore = bot.UpdateKeystore();
@@ -151,10 +139,10 @@ namespace SeaBot
                 logger.Info("Bot Uin: " + Config.QQUin, _name);
                 Files.Create(@"keystore.json");
                 Files.WriteInFiles(JsonSerializer.Serialize(_keyStore), @"keystore.json");//save keystore
-                logger.Info("Key Stored.", _name);
+                logger.Info("登录Token已保存", _name);
                 bot.Invoker.OnFriendMessageReceived += EventProcess.BotReceiveMessage;
                 bot.Invoker.OnGroupMessageReceived += EventProcess.BotReceiveMessage;
-                logger.Info("If bot's log do not show message \"Bot login successfully.\", please restart bot.", _name);
+                logger.Info("如果你未看到“登录成功”，请参照上述步骤进行；如果你是扫码登录，那么大概率是Code45，请联系开发者", _name);
             }
             catch (Exception)
             {
@@ -182,15 +170,15 @@ namespace SeaBot
                 var message = chain.Build();
                 Thread.Sleep(r.Next(1000, 3000));
                 var logger = new Logger();
-                logger.Info("Message.Seng request sent", "Message.Send");
+                logger.Info("消息已申请发送", "Message.Send");
                 Message.Message.LastResult = await _bot.SendMessage(message);
                 if (message.GroupUin != null)
                 {
-                    logger.Info("Send a message to group: " + old.GroupUin, "Message.Send");
+                    logger.Info($"已向群{old.GroupUin}发送消息", "Message.Send");
                 }
                 else if (message.GroupUin == null)
                 {
-                    logger.Info("Send a message to friend: " + old.FriendUin, "Message.Send");
+                    logger.Info($"已向好友{old.FriendUin}发送消息", "Message.Send");
                 }
             }
             catch (Exception)
@@ -214,15 +202,15 @@ namespace SeaBot
                 var message = chain.Build();
                 Thread.Sleep(r.Next(1000, 5000));
                 var logger = new Logger();
-                logger.Info("Message.Seng request sent", "Message.Send");
+                logger.Info("消息已申请发送", "Message.Send");
                 Message.Message.LastResult = await _bot.SendMessage(message);
                 if (message.GroupUin != null)
                 {
-                    logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
+                    logger.Info($"已向群{message.GroupUin}发送消息", "Message.Send");
                 }
                 else if (message.GroupUin == null)
                 {
-                    logger.Info("Send a message to friend: " + message.FriendUin, "Message.Send");
+                    logger.Info($"已向群{message.FriendUin}发送消息", "Message.Send");
                 }
             }
             catch (Exception)

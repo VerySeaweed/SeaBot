@@ -8,9 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Lagrange.Core">
-      <HintPath>..\..\Lagrange\Lagrange.Core\bin\Debug\net6.0\Lagrange.Core.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Lagrange.Core" Version="0.3.1" />
   </ItemGroup>
 
 </Project>

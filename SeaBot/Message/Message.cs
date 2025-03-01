@@ -44,7 +44,7 @@ namespace SeaBot.Message
                 }
                 if (isCommand)
                 {
-                    logger.Info($"Call command: {message}", _name);
+                    logger.Info($"接收到指令: {message}", _name);
                     char[] tempc = message.ToCharArray();
                     tempc[0] = ' ';
                     string temps = new string(tempc).Trim();

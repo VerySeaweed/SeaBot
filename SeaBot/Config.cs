@@ -12,15 +12,9 @@ namespace SeaBot
     {
         public uint QQUin { get; set; }
 
-        public string? AccessCode { get; set; }
-
         public char[]? CommandPrefix { get; set; }
 
         public bool UseQrCodeInsteadOfPassword { get; set; }
-
-        public bool UseApi { get; set; }
-
-        public int ApiListenedPort { get; set; }
 
         public LimitUin? LimitUinList { get; set; }
 
