@@ -11,34 +11,16 @@ using System.Threading.Tasks;
 
 namespace SeaBot.Message
 {
-    internal class Echo
+    internal class Echo : ModuleBase
     {
-        public void Sendback(string commands,MessageChain chain)
+        protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
-            if (chain.GroupUin != null)
-                Group(commands, chain);
+            message.Forward(chain);
+            if (command.Length <= 5)
+                message.Text("我和你爆了");
             else
-                Friend(commands, chain);
-        }
-        protected void Group(string commands,MessageChain chain)
-        {
-            var messageChain = MessageBuilder.Group(Convert.ToUInt32(chain.GroupUin));
-            messageChain.Forward(chain);
-            if (commands.Length<=5)
-                messageChain.Text("我和你爆了");
-            else
-                messageChain.Text(commands.Remove(0, 5));
-            Message.SendMessage(messageChain, chain);
-        }
-        protected void Friend(string commands, MessageChain chain)
-        {
-            var messageChain = MessageBuilder.Friend(chain.FriendUin);
-            messageChain.Forward(chain);
-            if (commands.Length <= 5)
-                messageChain.Text("我和你爆了");
-            else
-                messageChain.Text(commands.Remove(0, 5));
-            Message.SendMessage(messageChain, chain);
+                message.Text(command.Remove(0, 5));
+            return message;
         }
     }
     internal class Status : ModuleBase
@@ -47,7 +29,7 @@ namespace SeaBot.Message
         {
             message.Forward(chain);
             message.Text("SeaBot v0.1.1 running.\nSystem OS:" + Environment.OSVersion);
-            message.Text("\nRunning time:" + (DateTime.Now - Program.Bot.StartTime));
+            message.Text("\nRunning time:" + (DateTime.Now - Message.bot.StartTime));
             return message;
         }
     }

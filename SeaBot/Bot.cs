@@ -16,7 +16,8 @@ using Lagrange.Core.Common.Interface.Api;
 using System.Diagnostics;
 using Lagrange.Core.Utility.Extension;
 using SeaBot.Event;
-using SeaBot.ApiModule;
+using SeaBot.Message;
+using Lagrange.Core.Common.Entity;
 
 namespace SeaBot
 {
@@ -28,21 +29,20 @@ namespace SeaBot
 
         public Config? Config;
 
-        public BotContext? _bot;
+        protected BotContext? _bot;
 
         private bool FirstLogin = false;
 
-        public List<object> TempData;
-
-        public Api? _api;
+        public DataBase DataBase = new();
 
         public DateTime StartTime;
 
 
         public Bot()
         {
-            TempData = new List<object>();
             StartTime = DateTime.Now;
+            EventProcess.bot = this;
+            Message.Message.bot = this;
         }
 
 
@@ -106,68 +106,135 @@ namespace SeaBot
 
         public async void Start()
         {
-            var logger = new Logger();//init Logger
-            const string _name = "BotStartManager";
-            if (Init())//check files(config.json/device.json)
+            try
             {
-                logger.Info("Please edit config.json and restart the program.", _name);
-                return;
-            }
-            logger.Info("Initing...", _name);
-            var bot = BotFactory.Create(new BotConfig(), _deviceInfo, _keyStore);//create bot
-            this._bot = bot;
-            bot.Invoker.OnBotOnlineEvent += EventProcess.BotOnlineCheck;
-            bot.Invoker.OnBotOfflineEvent += EventProcess.BotOfflineCheck;
-            if (FirstLogin || Config.UseQrCodeInsteadOfPassword)
-            {
-                logger.Info($"Because {(FirstLogin ? "you are trying logining on the first time" : "")}{(Config.UseQrCodeInsteadOfPassword ? "of your preference" : "")}. Use QrCode login now.", _name);
-                var qc = await bot.FetchQrCode();//get qrcode
-                logger.Info("Please use your QQ app on your smartphone to scan the QrCode which should be open in your default photo app. If it doesn't work, open it from qrCode.png in currert path.", _name);
-                if (qc != null)
+                var logger = new Logger();//init Logger
+                const string _name = "BotStartManager";
+                if (Init())//check files(config.json/device.json)
                 {
-                    var (uri, qrCodeByte) = qc.Value;
-                    using FileStream fs = File.Create(@"qrCode.png");
-                    await fs.WriteAsync(qrCodeByte, new CancellationToken());
-                    Process.Start(new ProcessStartInfo
-                    {
-                        Arguments = ".\\qrCode.png",
-                        CreateNoWindow = true,
-                        FileName = "powershell"
-                    });//use app to open qrcode
+                    logger.Info("Please edit config.json and restart the program.", _name);
+                    return;
                 }
-                await bot.LoginByQrCode();//wait qrcode login
+                logger.Info("Initing...", _name);
+                var bot = BotFactory.Create(new BotConfig(), _deviceInfo, _keyStore);//create bot
+                this._bot = bot;
+                bot.Invoker.OnBotOnlineEvent += EventProcess.BotOnlineCheck;
+                bot.Invoker.OnBotOfflineEvent += EventProcess.BotOfflineCheck;
+                if (FirstLogin || Config.UseQrCodeInsteadOfPassword)
+                {
+                    logger.Info($"Because {(FirstLogin ? "you are trying logining on the first time" : "")}{(Config.UseQrCodeInsteadOfPassword ? "of your preference" : "")}. Use QrCode login now.", _name);
+                    var qc = await bot.FetchQrCode();//get qrcode
+                    logger.Info("Please use your QQ app on your smartphone to scan the QrCode which should be open in your default photo app. If it doesn't work, open it from qrCode.png in currert path.", _name);
+                    if (qc != null)
+                    {
+                        var (uri, qrCodeByte) = qc.Value;
+                        using FileStream fs = File.Create(@"qrCode.png");
+                        await fs.WriteAsync(qrCodeByte, new CancellationToken());
+                        Process.Start(new ProcessStartInfo
+                        {
+                            Arguments = ".\\qrCode.png",
+                            CreateNoWindow = true,
+                            FileName = "powershell"
+                        });//use app to open qrcode
+                        logger.Info("Waiting for logining.", _name);
+                    }
+                    await bot.LoginByQrCode();//wait qrcode login
+                }
+                else if (!Config.UseQrCodeInsteadOfPassword)
+                {
+                    logger.Info("Because of your preference. Use keystore login now.", _name);
+                    await bot.LoginByPassword();//wait password/keystore login
+                }
+                _keyStore = bot.UpdateKeystore();
+                this.Config.QQUin = _keyStore.Uin;
+                this.Config.SaveSelf();
+                logger.Info("Bot Uin: " + Config.QQUin, _name);
+                Files.Create(@"keystore.json");
+                Files.WriteInFiles(JsonSerializer.Serialize(_keyStore), @"keystore.json");//save keystore
+                logger.Info("Key Stored.", _name);
+                bot.Invoker.OnFriendMessageReceived += EventProcess.BotReceiveMessage;
+                bot.Invoker.OnGroupMessageReceived += EventProcess.BotReceiveMessage;
+                logger.Info("If bot's log do not show message \"Bot login successfully.\", please restart bot.", _name);
             }
-            else if (!Config.UseQrCodeInsteadOfPassword)
+            catch (Exception)
             {
-                logger.Info("Because of your preference. Use keystore login now.", _name);
-                await bot.LoginByPassword();//wait password/keystore login
+
+                throw;
             }
-            _keyStore = bot.UpdateKeystore();
-            this.Config.QQUin = _keyStore.Uin;
-            this.Config.SaveSelf();
-            logger.Info("Bot Uin: " + Config.QQUin, _name);
-            Files.Create(@"keystore.json");
-            Files.WriteInFiles(JsonSerializer.Serialize(_keyStore), @"keystore.json");//save keystore
-            logger.Info("Key Stored.", _name);
-            bot.Invoker.OnFriendMessageReceived += EventProcess.BotReceiveMessage;
-            bot.Invoker.OnGroupMessageReceived += EventProcess.BotReceiveMessage;
-            logger.Info("If bot's log do not show message \"Bot login successfully.\", please restart bot.", _name);
-            //if (Config.UseApi)
-            //{
-            //    _api = new Api();
-            //    _api.StartListener();
-            //}
         }
 
-        public void AddData(object data)
+        public void Stop()
         {
-            TempData.Add(data);
+            _bot.Dispose();
         }
 
-        public void RemoveData(object data)
+        public async void SendMessage(MessageBuilder chain, MessageChain old)
         {
-            int index = TempData.IndexOf(data);
-            TempData.RemoveAt(index);
+            try
+            {
+                Random r = new Random();
+                char[] randomCode = new char[8];
+                for (int i = 0; i < 8; i++)
+                {
+                    randomCode[i] = (char)r.Next(0, 1000);
+                }
+                chain.Text("\n随机码：" + new string(randomCode));
+                var message = chain.Build();
+                Thread.Sleep(r.Next(1000, 3000));
+                var logger = new Logger();
+                logger.Info("Message.Seng request sent", "Message.Send");
+                Message.Message.LastResult = await _bot.SendMessage(message);
+                if (message.GroupUin != null)
+                {
+                    logger.Info("Send a message to group: " + old.GroupUin, "Message.Send");
+                }
+                else if (message.GroupUin == null)
+                {
+                    logger.Info("Send a message to friend: " + old.FriendUin, "Message.Send");
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async void SendMessage(MessageBuilder chain)
+        {
+            try
+            {
+                Random r = new Random();
+                char[] randomCode = new char[8];
+                for (int i = 0; i < 8; i++)
+                {
+                    randomCode[i] = (char)r.Next(0, 1000);
+                }
+                chain.Text("\n随机码：" + new string(randomCode));
+                var message = chain.Build();
+                Thread.Sleep(r.Next(1000, 5000));
+                var logger = new Logger();
+                logger.Info("Message.Seng request sent", "Message.Send");
+                Message.Message.LastResult = await _bot.SendMessage(message);
+                if (message.GroupUin != null)
+                {
+                    logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
+                }
+                else if (message.GroupUin == null)
+                {
+                    logger.Info("Send a message to friend: " + message.FriendUin, "Message.Send");
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<List<BotGroupMember>> FetchGroupMembers(uint groupUin)
+        {
+            return await _bot.FetchMembers(groupUin);
         }
     }
 }

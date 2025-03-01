@@ -38,9 +38,6 @@ namespace SeaBot.Module
                     {
                         message.Text("\n" + item.CarPlate + " Public:" + item.IsPublic + " " + item.Description);
                         i++;
-                        if (i > 4)
-                            message.Text("车牌太多惹，只显示5条哦");
-                        break;
                     }
                 }
             }

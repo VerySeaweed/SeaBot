@@ -549,7 +549,7 @@ namespace SeaBot.Module
                     return;
                 }
                 _membersUin.Add(FriendUin);
-                var members = await Program.Bot._bot.FetchMembers(this.RoomNumber);
+                var members = await Message.Message.bot.FetchGroupMembers(this.RoomNumber);
                 foreach (var member in members)
                 {
                     if (member.Uin == FriendUin)
@@ -568,7 +568,7 @@ namespace SeaBot.Module
                     return;
                 }
                 _membersUin.Remove(FriendUin);
-                var members = await Program.Bot._bot.FetchMembers(this.RoomNumber);
+                var members = await Message.Message.bot.FetchGroupMembers(this.RoomNumber);
                 foreach (var member in members)
                 {
                     if (member.Uin == FriendUin)

@@ -28,38 +28,23 @@ namespace SeaBot
 
         public void Info(string message, string callingName)
         {
-            Console.ForegroundColor = this.InfoColor;
-            Console.Write("INFO");
-            Console.ForegroundColor = ConsoleColor.White;
-            string date= " [" +DateTime.Now.ToString("HH:mm:ss.ffff")+ "] ";
-            Console.WriteLine(date + "[" + callingName + "] " + message);
-            lock(new object())
+            lock (new object())
             {
-                LogIntoFile("INFO" + date + "[" + callingName + "] " + message);
+                this.Log(message, EMessageLevel.info, callingName);
             }
         }
         public void Warning(string message, string callingName)
         {
-            Console.ForegroundColor = this.WarningColor;
-            Console.Write("INFO");
-            Console.ForegroundColor = ConsoleColor.White;
-            string date = " [" + DateTime.Now.ToString("HH:mm:ss.ffff") + "] ";
-            Console.WriteLine(date + "[" + callingName + "] " + message);
             lock (new object())
             {
-                LogIntoFile("WARNING" + date + "[" + callingName + "] " + message);
+                this.Log(message, EMessageLevel.warning, callingName);
             }
         }
         public void Error(string message, string callingName)
         {
-            Console.ForegroundColor = this.ErrorColor;
-            Console.Write("INFO");
-            Console.ForegroundColor = ConsoleColor.White;
-            string date = " [" + DateTime.Now.ToString("HH:mm:ss.ffff") + "] ";
-            Console.WriteLine(date + "[" + callingName + "] " + message);
             lock (new object())
             {
-                LogIntoFile("ERROR" + date + "[" + callingName + "] " + message);
+                this.Log(message, EMessageLevel.error, callingName);
             }
         }
         public void Log(string message, EMessageLevel level, string callingName)

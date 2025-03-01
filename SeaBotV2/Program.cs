@@ -1,12 +1,10 @@
-﻿namespace SeaBot
+﻿namespace SeaBotV2
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-
-            var bot = new Bot();
-            bot.Start();
+            
         }
     }
 }

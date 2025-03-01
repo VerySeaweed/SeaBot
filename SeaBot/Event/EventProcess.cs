@@ -16,6 +16,8 @@ namespace SeaBot.Event
 {
     internal class EventProcess
     {
+        public static Bot? bot;
+
         public static void BotOnlineCheck(object sender, EventArgs e)
         {
             var logger = new Logger();
@@ -30,11 +32,11 @@ namespace SeaBot.Event
             stream.Close();
             File.Delete(Path.Combine(Environment.CurrentDirectory, @"keystore.json"));
             Thread.Sleep(1000);
-            if (Program.Bot.Config.UseApi && Program.Bot._api != null)
-            {
-                Program.Bot._api.StopListener();
-            }
-            Program.Bot._bot.Dispose();
+            //if (bot.Config.UseApi && bot._api != null)
+            //{
+            //    bot._api.StopListener();
+            //}
+            bot.Stop();
         }
 
         public static void BotReceiveMessage(object sender, EventArgs e)
@@ -51,7 +53,7 @@ namespace SeaBot.Event
                     }
                 }
                 logger.Info("Received friend message from friend: " + eventEntity.Chain.FriendUin, "MessageEvent");
-                if (!Program.Bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
+                if (!bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
                 {
                     logger.Info("GroupUin/FriendUin can not pass whitelist check.", "MessageCheck");
                     return;
@@ -70,7 +72,7 @@ namespace SeaBot.Event
                     }
                 }
                 logger.Info("Received group message from group: " + eventEntity.Chain.GroupUin, "MessageEvent");
-                if (!Program.Bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
+                if (!bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
                 {
                     logger.Info("GroupUin/FriendUin can not pass whitelist check.", "MessageCheck");
                     return;

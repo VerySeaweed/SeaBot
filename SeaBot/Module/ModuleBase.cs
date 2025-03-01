@@ -10,6 +10,8 @@ namespace SeaBot.Module
 {
     internal class ModuleBase
     {
+        public Bot? bot;
+
         public ModuleBase() 
         {
 

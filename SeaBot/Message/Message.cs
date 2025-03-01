@@ -16,122 +16,93 @@ namespace SeaBot.Message
     {
         public static MessageResult? LastResult;
 
+        public static Bot? bot;
+
         public static void CommandParse(MessageChain chain)
         {
-            const string _name = "Message";
-            var config = JsonSerializer.Deserialize<Config>(Files.ReadInFiles(@"config.json"));
-            bool isCommand = false;
-            string? message = null;
-            var logger = new Logger();
-            foreach (var item in chain)
+            try
             {
-                if (item is TextEntity text)
-                    message = text.Text;
-            }
-            if (message == null)
-                return;
-            for (int i = 0; i < config.CommandPrefix.Length; i++)
-            {
-                if (config.CommandPrefix[i] == message[0])
+                const string _name = "Message";
+                var config = JsonSerializer.Deserialize<Config>(Files.ReadInFiles(@"config.json"));
+                bool isCommand = false;
+                string? message = null;
+                var logger = new Logger();
+                foreach (var item in chain)
                 {
-                    isCommand = true;
-                    break;
+                    if (item is TextEntity text)
+                        message = text.Text;
+                }
+                if (message == null)
+                    return;
+                for (int i = 0; i < config.CommandPrefix.Length; i++)
+                {
+                    if (config.CommandPrefix[i] == message[0])
+                    {
+                        isCommand = true;
+                        break;
+                    }
+                }
+                if (isCommand)
+                {
+                    logger.Info($"Call command: {message}", _name);
+                    char[] tempc = message.ToCharArray();
+                    tempc[0] = ' ';
+                    string temps = new string(tempc).Trim();
+                    string[] commands = temps.Split(' ');
+                    switch (commands[0])
+                    {
+                        case "ycm":
+                            var item_ycm = bot.DataBase.Data.Find(x => x is YouCarMa);
+                            var ycm = new YouCarMa();
+                            if (item_ycm != null)
+                            {
+                                ycm = item_ycm as YouCarMa;
+                                bot.DataBase.RemoveData(item_ycm);
+                            }
+                            ycm.ReceiveCommand(temps, chain);
+                            bot.DataBase.AddData(ycm);
+                            break;
+                        case "status":
+                            var status = new Status();
+                            status.ReceiveCommand(temps, chain);
+                            break;
+                        case "help":
+                            var help = new Help();
+                            help.ReceiveCommand(temps, chain);
+                            break;
+                        case "echo":
+                            var echo = new Echo();
+                            echo.ReceiveCommand(temps, chain);
+                            break;
+                        case "g":
+                        case "guess":
+                            var item_guess = bot.DataBase.Data.Find(x => x is Guess);
+                            var guess = new Guess();
+                            if (item_guess != null)
+                            {
+                                guess = item_guess as Guess;
+                                bot.DataBase.RemoveData(item_guess);
+                            }
+                            guess.ReceiveCommand(temps, chain);
+                            bot.DataBase.AddData(guess);
+                            break;
+                    }
                 }
             }
-            if (isCommand)
+            catch (Exception)
             {
-                logger.Info($"Call command: {message}", _name);
-                char[] tempc = message.ToCharArray();
-                tempc[0]=' ';
-                string temps = new string(tempc).Trim();
-                string[] commands = temps.Split(' ');
-                switch (commands[0])
-                {
-                    case "ycm":
-                        var item_ycm = Program.Bot.TempData.Find(x => x is YouCarMa);
-                        var ycm = new YouCarMa();
-                        if (item_ycm != null)
-                        {
-                            ycm = item_ycm as YouCarMa;
-                            Program.Bot.RemoveData(item_ycm);
-                        }
-                        ycm.ReceiveCommand(temps, chain);
-                        Program.Bot.AddData(ycm);
-                        break;
-                    case "status":
-                        var status = new Status();
-                        status.ReceiveCommand(temps, chain);
-                        break;
-                    case "help":
-                        var help = new Help();
-                        help.ReceiveCommand(temps, chain);
-                        break;
-                    case "echo":
-                        var echo = new Echo();
-                        echo.Sendback(temps, chain);
-                        break;
-                    case "g":
-                    case "guess":
-                        var item_guess = Program.Bot.TempData.Find(x => x is Guess);
-                        var guess = new Guess();
-                        if (item_guess != null)
-                        {
-                            guess = item_guess as Guess;
-                            Program.Bot.RemoveData(item_guess);
-                        }
-                        guess.ReceiveCommand(temps, chain);
-                        Program.Bot.AddData(guess);
-                        break;
-                }
+
+                throw;
             }
         }
 
-        public async static void SendMessage(MessageBuilder chain, MessageChain old)
+        public static void SendMessage(MessageBuilder chain, MessageChain old)
         {
-            Random r = new Random();
-            char[] randomCode = new char[8];
-            for (int i = 0; i < 8; i++ )
-            {
-                randomCode[i] = (char)r.Next(0, 1000);
-            }
-            chain.Text("\n随机码：" + new string(randomCode));
-            var message = chain.Build();
-            Thread.Sleep(r.Next(1000, 3000));
-            var logger = new Logger();
-            logger.Info("Message.Seng request sent", "Message.Send");
-            LastResult = await Program.Bot._bot.SendMessage(message);
-            if (message.GroupUin != null)
-            {
-                logger.Info("Send a message to group: " + old.GroupUin, "Message.Send");
-            }
-            else if (message.GroupUin == null)
-            {
-                logger.Info("Send a message to friend: " + old.FriendUin, "Message.Send");
-            }
+            bot.SendMessage(chain, old);
         }
-
-        public async static void SendMessage(MessageBuilder chain)
+        public static void SendMessage(MessageBuilder chain)
         {
-            Random r = new Random();
-            char[] randomCode = new char[8];
-            for (int i = 0; i < 8; i++)
-            {
-                randomCode[i] = (char)r.Next(0, 1000);
-            }
-            chain.Text("\n随机码：" + new string(randomCode));
-            var message = chain.Build();
-            Thread.Sleep(r.Next(1000, 5000));
-            var logger = new Logger();
-            logger.Info("Message.Seng request sent", "Message.Send");
-            LastResult = await Program.Bot._bot.SendMessage(message);
-            if (message.GroupUin != null)
-            {
-                logger.Info("Send a message to group: " + message.GroupUin, "Message.Send");
-            }
-            else if (message.GroupUin == null)
-            {
-                logger.Info("Send a message to friend: " + message.FriendUin, "Message.Send");
-            }
+            bot.SendMessage(chain);
         }
     }
 
