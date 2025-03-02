@@ -33,6 +33,14 @@ namespace SeaBot.Message
             return message;
         }
     }
+    internal class Ping : ModuleBase
+    {
+        protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
+        {
+            message.Text($"嗯哼？（{(DateTime.Now - chain.Time)}）");
+            return message;
+        }
+    }
     internal class Help : ModuleBase
     {
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
@@ -41,7 +49,8 @@ namespace SeaBot.Message
             message.Text("在模块主命令后加入help参数以查看帮助:");
             message.Text("\necho <string:message> -返回message的内容，该模块没有帮助");
             message.Text("\nstatus -返回bot运行信息，该模块没有帮助");
-            message.Text("\nycm -有车吗模块，帮助请访问其帮助系统。");
+            message.Text("\nycm -有车吗模块，请访问其帮助系统。");
+            message.Text("\nguess -猜字母模块，请访问其帮助系统。");
             return message;
         }
     }

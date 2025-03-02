@@ -57,10 +57,13 @@ namespace SeaBot.Message
                             if (item_ycm != null)
                             {
                                 ycm = item_ycm as YouCarMa;
-                                bot.DataBase.RemoveData(item_ycm);
+                            }
+                            else
+                            {
+                                ycm.bot = bot;
+                                bot.DataBase.AddData(ycm);
                             }
                             ycm.ReceiveCommand(temps, chain);
-                            bot.DataBase.AddData(ycm);
                             break;
                         case "status":
                             var status = new Status();
@@ -81,10 +84,17 @@ namespace SeaBot.Message
                             if (item_guess != null)
                             {
                                 guess = item_guess as Guess;
-                                bot.DataBase.RemoveData(item_guess);
+                            }
+                            else
+                            {
+                                guess.bot = bot;
+                                bot.DataBase.AddData(guess);
                             }
                             guess.ReceiveCommand(temps, chain);
-                            bot.DataBase.AddData(guess);
+                            break;
+                        case "ping":
+                            var ping = new Ping();
+                            ping.ReceiveCommand(temps, chain);
                             break;
                     }
                 }

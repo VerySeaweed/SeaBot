@@ -40,7 +40,7 @@ namespace SeaBot.Module
         {
             var message = MessageBuilder.Friend(chain.FriendUin);
             message.Text("不支持在私聊中调用Guess模块");
-            Message.Message.SendMessage(message, chain);
+            bot.SendMessage(message, chain);
         }
 
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)

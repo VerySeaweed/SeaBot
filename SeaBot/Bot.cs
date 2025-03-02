@@ -104,6 +104,8 @@ namespace SeaBot
                 logger.Info("初始化……", _name);
                 var bot = BotFactory.Create(new BotConfig(), _deviceInfo, _keyStore);//create bot
                 this._bot = bot;
+                logger.Info($"-----登录基本信息-----\n协议版本：{bot.AppInfo.PtVersion}\n客户端版本：{bot.AppInfo.AppClientVersion}\n客户端系统：{bot.AppInfo.Os}", _name);
+                logger.Info($"-----宿主机基本信息-----\n系统版本：{Environment.OSVersion}\n.Net版本：{Environment.Version}\n内存：{Environment.WorkingSet}", _name);
                 bot.Invoker.OnBotOnlineEvent += EventProcess.BotOnlineCheck;
                 bot.Invoker.OnBotOfflineEvent += EventProcess.BotOfflineCheck;
                 bot.Invoker.OnBotCaptchaEvent += EventProcess.BotCaptchaCheck;

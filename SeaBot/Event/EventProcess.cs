@@ -54,13 +54,13 @@ namespace SeaBot.Event
                         return;
                     }
                 }
-                logger.Info("Received friend message from friend: " + eventEntity.Chain.FriendUin, "MessageEvent");
+                logger.Info($"接收到来自好友{eventEntity.Chain.FriendUin}的消息", "MessageEvent");
                 if (!bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
                 {
-                    logger.Info("GroupUin/FriendUin can not pass whitelist check.", "MessageCheck");
+                    logger.Info($"来自好友{eventEntity.Chain.FriendUin}的消息未通过白名单验证", "MessageCheck");
                     return;
                 }
-                logger.Info("Message passed whitelist check.", "MessageCheck");
+                logger.Info($"来自好友{eventEntity.Chain.FriendUin}的消息通过白名单验证", "MessageCheck");
                 Message.Message.CommandParse(eventEntity.Chain);
             }
             else if (e is GroupMessageEvent)
@@ -73,13 +73,13 @@ namespace SeaBot.Event
                         return;
                     }
                 }
-                logger.Info("Received group message from group: " + eventEntity.Chain.GroupUin, "MessageEvent");
+                logger.Info($"接收到来自群聊{eventEntity.Chain.GroupUin}的消息", "MessageEvent");
                 if (!bot.Config.LimitUinList.IsWhiteList(eventEntity.Chain))
                 {
-                    logger.Info("GroupUin/FriendUin can not pass whitelist check.", "MessageCheck");
+                    logger.Info($"来自群聊{eventEntity.Chain.GroupUin}的消息未通过白名单验证", "MessageCheck");
                     return;
                 }
-                logger.Info("Message passed whitelist check.", "MessageCheck");
+                logger.Info($"来自群聊{eventEntity.Chain.GroupUin}的消息通过白名单验证", "MessageCheck");
                 Message.Message.CommandParse(eventEntity.Chain);
             }
         }
