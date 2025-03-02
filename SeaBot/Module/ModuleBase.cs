@@ -29,14 +29,14 @@ namespace SeaBot.Module
         {
             var messageChain = MessageBuilder.Friend(chain.FriendUin);
             var message = Process(command, chain, messageChain);
-            Message.Message.SendMessage(message, chain);
+            bot.SendMessage(message, chain);
         }
 
         protected virtual void Group(string command, MessageChain chain)
         {
             var messageChain = MessageBuilder.Group(Convert.ToUInt32(chain.GroupUin));
             var message = Process(command, chain, messageChain);
-            Message.Message.SendMessage(message, chain);
+            bot.SendMessage(message, chain);
         }
 
         protected virtual MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
