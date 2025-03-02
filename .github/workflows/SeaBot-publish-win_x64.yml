@@ -22,6 +22,11 @@ jobs:
             6.0.x
             8.0.x
 
+      - name: Restore dependencies (新增依赖恢复步骤)
+        shell: pwsh
+        run: |
+          dotnet restore SeaBot/SeaBot.csproj -p:RestoreAdditionalProjectSources="${{github.workspace}}/Lagrange"
+
       - name: Run tests
         run: dotnet test SeaBot.sln --configuration Release
 
