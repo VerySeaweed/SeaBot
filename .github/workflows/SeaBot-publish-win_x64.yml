@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Clone Lagrange.Core
+        shell: pwsh
+        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git Lagrange
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
@@ -22,7 +26,7 @@ jobs:
         run: dotnet test SeaBot.sln --configuration Release
 
       - name: Publish SeaBot (Windows x64)
-        shell: pwsh  # 使用PowerShell
+        shell: pwsh
         run: |
           $frameworks = @("net6.0", "net8.0")
           foreach ($framework in $frameworks) {
