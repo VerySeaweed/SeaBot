@@ -119,11 +119,9 @@ namespace SeaBot
                         var (uri, qrCodeByte) = qc.Value;
                         using FileStream fs = File.Create(@"qrCode.png");
                         await fs.WriteAsync(qrCodeByte, new CancellationToken());
-                        Process.Start(new ProcessStartInfo
+                        Process.Start(new ProcessStartInfo("qrCode.png")
                         {
-                            Arguments = "-Command \".\\qrCode.png\"",
-                            CreateNoWindow = true,
-                            FileName = "powershell"
+                            UseShellExecute = true
                         });//use app to open qrcode
                         logger.Info("等待登录完成……", _name);
                     }
