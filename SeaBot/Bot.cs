@@ -131,7 +131,11 @@ namespace SeaBot
                 else if (!Config.UseQrCodeInsteadOfPassword)
                 {
                     logger.Info("由于你的偏好设置，将使用已保存的Token登录，如不能成功登录，请删除SeaBot根目录下的keystore.json文件再试", _name);
-                    await bot.LoginByPassword();//wait password/keystore login
+                    bool loginSuccess = await bot.LoginByPassword();//wait password/keystore login
+                    if (!loginSuccess)
+                    {
+                        logger.Info("Token登录不成功。", _name);
+                    }
                 }
                 _keyStore = bot.UpdateKeystore();
                 this.Config.QQUin = _keyStore.Uin;
