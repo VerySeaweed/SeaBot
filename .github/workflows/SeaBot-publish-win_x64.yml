@@ -1,0 +1,79 @@
+name: SeaBot Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Clone Lagrange.Core
+        shell: pwsh
+        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git Lagrange
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: |
+          dotnet restore SeaBot/SeaBot.csproj -p:RestoreAdditionalProjectSources="${{github.workspace}}\Lagrange\Lagrange.Core\Lagrange.Core.csproj"
+
+      - name: Run tests
+        run: dotnet test SeaBot.sln --configuration Release
+
+      - name: Publish SeaBot (Windows x64)
+        shell: pwsh
+        run: |
+          $frameworks = @("net6.0", "net8.0")
+          foreach ($framework in $frameworks) {
+            $outputDir = "publish\SeaBot\$framework"
+            
+            dotnet publish SeaBot\SeaBot.csproj `
+              -c Release `
+              -f $framework `
+              --self-contained true `
+              -r win-x64 `
+              /p:PublishSingleFile=true `
+              /p:DebugType=None `
+              /p:IncludeSymbolsInSingleFile=false `
+              /p:GenerateDocumentationFile=false `
+              -o $outputDir
+
+            Remove-Item -Path "$outputDir\*.pdb" -ErrorAction SilentlyContinue
+            Compress-Archive -Path "$outputDir\*" -DestinationPath "SeaBot-$framework-win-x64.zip"
+          }
+
+      - name: Publish GenerateSongData (Windows x64)
+        shell: pwsh
+        run: |
+          $outputDir = "publish\GenerateSongData\net8.0"
+          
+          dotnet publish GenerateSongData\GenerateSongData.csproj `
+            -c Release `
+            -f net8.0 `
+            --self-contained true `
+            -r win-x64 `
+            /p:PublishSingleFile=true `
+            /p:DebugType=None `
+            /p:IncludeSymbolsInSingleFile=false `
+            /p:GenerateDocumentationFile=false `
+            -o $outputDir
+
+          Remove-Item -Path "$outputDir\*.pdb" -ErrorAction SilentlyContinue
+          Compress-Archive -Path "$outputDir\*" -DestinationPath "GenerateSongData-net8.0-win-x64.zip"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            *-win-x64.zip
