@@ -13,7 +13,7 @@ jobs:
         
       - name: Clone Lagrange.Core
         shell: pwsh
-        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git Lagrange
+        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git "${{github.workspace}}\Lagrange"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
