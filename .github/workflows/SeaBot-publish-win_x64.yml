@@ -13,7 +13,7 @@ jobs:
         
       - name: Clone Lagrange.Core
         shell: pwsh
-        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git "${{github.workspace}}\..\Lagrange"
+        run: git clone https://github.com/LagrangeDev/Lagrange.Core.git "D:\a\SeaBot\Lagrange"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
@@ -25,7 +25,7 @@ jobs:
       - name: Restore dependencies
         shell: pwsh
         run: |
-          dotnet restore SeaBot/SeaBot.csproj -p:RestoreAdditionalProjectSources="${{github.workspace}}\..\Lagrange\Lagrange.Core\Lagrange.Core.csproj"
+          dotnet restore SeaBot/SeaBot.csproj -p:RestoreAdditionalProjectSources="D:\a\SeaBot\Lagrange\Lagrange.Core\Lagrange.Core.csproj"
 
       - name: Run tests
         run: dotnet test SeaBot.sln --configuration Release
