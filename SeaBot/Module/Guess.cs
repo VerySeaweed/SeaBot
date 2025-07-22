@@ -23,6 +23,7 @@ namespace SeaBot.Module
         public Guess()
         {
             this.unique_id = "guess";
+            this.commandAlias = new string[] { "g" };
         }
 
 

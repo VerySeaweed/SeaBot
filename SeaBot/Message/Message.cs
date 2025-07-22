@@ -53,59 +53,23 @@ namespace SeaBot.Message
                     tempc[0] = ' ';
                     string temps = new string(tempc).Trim();
                     string[] commands = temps.Split(' ');
-                    //switch (commands[0])
-                    //{
-                    //    case "ycm":
-                    //        var item_ycm = bot.DataBase.Data.Find(x => x is YouCarMa);
-                    //        var ycm = new YouCarMa();
-                    //        if (item_ycm != null)
-                    //        {
-                    //            ycm = item_ycm as YouCarMa;
-                    //        }
-                    //        else
-                    //        {
-                    //            ycm.bot = bot;
-                    //            bot.DataBase.AddData(ycm);
-                    //        }
-                    //        ycm.ReceiveCommand(temps, chain);
-                    //        break;
-                    //    case "status":
-                    //        var status = new Status();
-                    //        status.ReceiveCommand(temps, chain);
-                    //        break;
-                    //    case "help":
-                    //        var help = new Help();
-                    //        help.ReceiveCommand(temps, chain);
-                    //        break;
-                    //    case "echo":
-                    //        var echo = new Echo();
-                    //        echo.ReceiveCommand(temps, chain);
-                    //        break;
-                    //    case "g":
-                    //    case "guess":
-                    //        var item_guess = bot.DataBase.Data.Find(x => x is Guess);
-                    //        var guess = new Guess();
-                    //        if (item_guess != null)
-                    //        {
-                    //            guess = item_guess as Guess;
-                    //        }
-                    //        else
-                    //        {
-                    //            guess.bot = bot;
-                    //            bot.DataBase.AddData(guess);
-                    //        }
-                    //        guess.ReceiveCommand(temps, chain);
-                    //        break;
-                    //    case "ping":
-                    //        var ping = new Ping();
-                    //        ping.ReceiveCommand(temps, chain);
-                    //        break;
-                    //}
                     for (int i = 0;i < modules.Count-1;i++)
                     {
                         if (commands[0] == modules[i].unique_id)
                         {
                             modules[i].ReceiveCommand(temps, chain);
+                            break;
+                        }
+                        else
+                        {
+                            foreach (var str in modules[i].commandAlias)
+                            {
+                                if (commands[0] == str) 
+                                {
+                                    modules[i].ReceiveCommand(temps, chain);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }

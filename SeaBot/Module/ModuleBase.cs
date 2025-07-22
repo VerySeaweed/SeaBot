@@ -14,6 +14,8 @@ namespace SeaBot.Module
 
         public string unique_id;
 
+        public string[] commandAlias;
+
         public ModuleBase() 
         {
 
