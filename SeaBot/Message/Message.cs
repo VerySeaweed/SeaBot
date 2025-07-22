@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace SeaBot.Message
         public static MessageResult? LastResult;
 
         public static Bot? bot;
+
+        public static List<ModuleBase> modules = new List<ModuleBase>();
+
 
         public static void CommandParse(MessageChain chain)
         {
@@ -49,53 +53,60 @@ namespace SeaBot.Message
                     tempc[0] = ' ';
                     string temps = new string(tempc).Trim();
                     string[] commands = temps.Split(' ');
-                    switch (commands[0])
+                    //switch (commands[0])
+                    //{
+                    //    case "ycm":
+                    //        var item_ycm = bot.DataBase.Data.Find(x => x is YouCarMa);
+                    //        var ycm = new YouCarMa();
+                    //        if (item_ycm != null)
+                    //        {
+                    //            ycm = item_ycm as YouCarMa;
+                    //        }
+                    //        else
+                    //        {
+                    //            ycm.bot = bot;
+                    //            bot.DataBase.AddData(ycm);
+                    //        }
+                    //        ycm.ReceiveCommand(temps, chain);
+                    //        break;
+                    //    case "status":
+                    //        var status = new Status();
+                    //        status.ReceiveCommand(temps, chain);
+                    //        break;
+                    //    case "help":
+                    //        var help = new Help();
+                    //        help.ReceiveCommand(temps, chain);
+                    //        break;
+                    //    case "echo":
+                    //        var echo = new Echo();
+                    //        echo.ReceiveCommand(temps, chain);
+                    //        break;
+                    //    case "g":
+                    //    case "guess":
+                    //        var item_guess = bot.DataBase.Data.Find(x => x is Guess);
+                    //        var guess = new Guess();
+                    //        if (item_guess != null)
+                    //        {
+                    //            guess = item_guess as Guess;
+                    //        }
+                    //        else
+                    //        {
+                    //            guess.bot = bot;
+                    //            bot.DataBase.AddData(guess);
+                    //        }
+                    //        guess.ReceiveCommand(temps, chain);
+                    //        break;
+                    //    case "ping":
+                    //        var ping = new Ping();
+                    //        ping.ReceiveCommand(temps, chain);
+                    //        break;
+                    //}
+                    for (int i = 0;i < modules.Count-1;i++)
                     {
-                        case "ycm":
-                            var item_ycm = bot.DataBase.Data.Find(x => x is YouCarMa);
-                            var ycm = new YouCarMa();
-                            if (item_ycm != null)
-                            {
-                                ycm = item_ycm as YouCarMa;
-                            }
-                            else
-                            {
-                                ycm.bot = bot;
-                                bot.DataBase.AddData(ycm);
-                            }
-                            ycm.ReceiveCommand(temps, chain);
-                            break;
-                        case "status":
-                            var status = new Status();
-                            status.ReceiveCommand(temps, chain);
-                            break;
-                        case "help":
-                            var help = new Help();
-                            help.ReceiveCommand(temps, chain);
-                            break;
-                        case "echo":
-                            var echo = new Echo();
-                            echo.ReceiveCommand(temps, chain);
-                            break;
-                        case "g":
-                        case "guess":
-                            var item_guess = bot.DataBase.Data.Find(x => x is Guess);
-                            var guess = new Guess();
-                            if (item_guess != null)
-                            {
-                                guess = item_guess as Guess;
-                            }
-                            else
-                            {
-                                guess.bot = bot;
-                                bot.DataBase.AddData(guess);
-                            }
-                            guess.ReceiveCommand(temps, chain);
-                            break;
-                        case "ping":
-                            var ping = new Ping();
-                            ping.ReceiveCommand(temps, chain);
-                            break;
+                        if (commands[0] == modules[i].unique_id)
+                        {
+                            modules[i].ReceiveCommand(temps, chain);
+                        }
                     }
                 }
             }
@@ -104,6 +115,38 @@ namespace SeaBot.Message
 
                 throw;
             }
+        }
+
+        public static void Init()
+        {
+            List<Type?> moduleTypes = GetUniqueId(typeof(ModuleBase));
+            foreach (var type in moduleTypes)
+            {
+                var info = type.GetConstructor(new Type[0]);
+                modules.Add(info.Invoke(null) as ModuleBase);
+            }
+        }
+        protected static List<Type?> GetUniqueId(Type parent)
+        {
+            var temp = AppDomain.CurrentDomain.GetAssemblies();
+            List<Type?> types = new List<Type?>();
+            foreach (var item in temp)
+            {
+                if (item.FullName.StartsWith("System.") || item.FullName.StartsWith("Microsoft"))
+                    continue;
+                types = temp.SelectMany(x =>
+                {
+                    try
+                    {
+                        return x.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        return ex.Types.Where(t => t != null);
+                    }
+                }).Where(x => x.IsClass && x.IsSubclassOf(parent)).ToList();
+            }
+            return types;
         }
 
         public static void SendMessage(MessageBuilder chain, MessageChain old)

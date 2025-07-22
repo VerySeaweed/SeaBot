@@ -20,6 +20,12 @@ namespace SeaBot.Module
         private string _name = "Guess";
 
 
+        public Guess()
+        {
+            this.unique_id = "guess";
+        }
+
+
         protected void ExistFile()
         {
             if (!Directory.Exists(_songBasePath))

@@ -9,7 +9,7 @@ namespace SeaBot.Module
 {
     internal class YouCarMa : ModuleBase
     {
-        protected List<Car> Cars;
+        protected List<Car> Cars = new List<Car>();
 
         protected class Car
         {
@@ -20,7 +20,7 @@ namespace SeaBot.Module
 
         public YouCarMa()
         {
-            Cars = new List<Car>();
+            this.unique_id = "ycm";
         }
 
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)

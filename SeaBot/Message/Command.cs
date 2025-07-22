@@ -13,6 +13,10 @@ namespace SeaBot.Message
 {
     internal class Echo : ModuleBase
     {
+        public Echo() 
+        {
+            this.unique_id = "echo";
+        }
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
             message.Forward(chain);
@@ -25,6 +29,10 @@ namespace SeaBot.Message
     }
     internal class Status : ModuleBase
     {
+        public Status()
+        {
+            this.unique_id = "status";
+        }
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
             message.Forward(chain);
@@ -35,6 +43,10 @@ namespace SeaBot.Message
     }
     internal class Ping : ModuleBase
     {
+        public Ping()
+        {
+            this.unique_id = "ping";
+        }
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
             message.Text($"嗯哼？（{(DateTime.Now - chain.Time)}）");
@@ -43,6 +55,10 @@ namespace SeaBot.Message
     }
     internal class Help : ModuleBase
     {
+        public Help()
+        {
+            this.unique_id = "help";
+        }
         protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
         {
             message.Forward(chain);

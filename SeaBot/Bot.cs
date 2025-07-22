@@ -144,6 +144,7 @@ namespace SeaBot
                 Files.Create(@"keystore.json");
                 Files.WriteInFiles(JsonSerializer.Serialize(_keyStore), @"keystore.json");//save keystore
                 logger.Info("登录Token已保存", _name);
+                Message.Message.Init();
                 bot.Invoker.OnFriendMessageReceived += EventProcess.BotReceiveMessage;
                 bot.Invoker.OnGroupMessageReceived += EventProcess.BotReceiveMessage;
                 logger.Info("如果你未看到“登录成功”，请参照上述步骤进行；如果你是扫码登录，那么大概率是Code45，请联系开发者", _name);

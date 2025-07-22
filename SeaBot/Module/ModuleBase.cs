@@ -12,6 +12,8 @@ namespace SeaBot.Module
     {
         public Bot bot = Message.Message.bot;
 
+        public string unique_id;
+
         public ModuleBase() 
         {
 
