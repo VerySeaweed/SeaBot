@@ -148,7 +148,7 @@ namespace SeaBot.Module
         {
             message.Text(".g .guess均可调用本模块\n.g create -字面意思，每个群有且只能有1个活动状态的房间\n.g setrange [命名空间，用;分隔] -设置开字母曲库范围，请确认命名空间是否正确");
             message.Text("\n.g start -字面意思，仅在范围设置后可用\n.g stop -字面意思，同时关闭房间\n.g o/open [要开的字母] -开字母\n.g g/guess [曲目全名/部分别名] -别名仍在搜集，不正确是正常情况");
-            message.Text("\n.g join -加入本群开字母房间\n.g leave -退出房间\n.g setcount [曲目数，应为纯数字] -设置开字母曲目数");
+            message.Text("\n.g join -加入本群开字母房间\n.g leave -退出房间\n.g setcount [曲目数，应为纯数字] -设置开字母曲目数\n.g reload -重载模块，将清理全部游戏进程");
             return message;
         }
 

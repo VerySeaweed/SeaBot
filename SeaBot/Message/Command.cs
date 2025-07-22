@@ -67,6 +67,25 @@ namespace SeaBot.Message
             message.Text("\nstatus -返回bot运行信息，该模块没有帮助");
             message.Text("\nycm -有车吗模块，请访问其帮助系统。");
             message.Text("\nguess -猜字母模块，请访问其帮助系统。");
+            message.Text("\n更多模块帮助请使用modulelist命令获取主命令已查询其帮助系统。");
+            return message;
+        }
+    }
+    internal class ModuleList : ModuleBase
+    {
+        public ModuleList()
+        {
+            this.unique_id = "modulelist";
+            this.commandAlias = new string[] { "ls" };
+        }
+        protected override MessageBuilder Process(string command, MessageChain chain, MessageBuilder message)
+        {
+            var strs = Message.GetModuleList();
+            message.Forward(chain);
+            foreach (var item in strs)
+            {
+                message.Text($"-{item}{(item == strs[strs.Length - 1] ? "" : "\n")}");
+            }
             return message;
         }
     }

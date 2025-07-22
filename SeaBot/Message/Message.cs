@@ -53,7 +53,7 @@ namespace SeaBot.Message
                     tempc[0] = ' ';
                     string temps = new string(tempc).Trim();
                     string[] commands = temps.Split(' ');
-                    for (int i = 0;i < modules.Count-1;i++)
+                    for (int i = 0;i < modules.Count;i++)
                     {
                         if (commands[0] == modules[i].unique_id)
                         {
@@ -62,6 +62,8 @@ namespace SeaBot.Message
                         }
                         else
                         {
+                            if (modules[i].commandAlias == null)
+                                continue;
                             foreach (var str in modules[i].commandAlias)
                             {
                                 if (commands[0] == str) 
@@ -111,6 +113,15 @@ namespace SeaBot.Message
                 }).Where(x => x.IsClass && x.IsSubclassOf(parent)).ToList();
             }
             return types;
+        }
+        public static string[] GetModuleList()
+        {
+            string[] strs = new string[modules.Count];
+            for (int i = 0; i < modules.Count; i++)
+            {
+                strs[i] = modules[i].unique_id;
+            }
+            return strs;
         }
 
         public static void SendMessage(MessageBuilder chain, MessageChain old)
