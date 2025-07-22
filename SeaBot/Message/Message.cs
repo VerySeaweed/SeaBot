@@ -126,6 +126,8 @@ namespace SeaBot.Message
             bool limit = false;
             if (chain.GroupUin!=null)
             {
+                if (Groups.Length == 0)
+                    limit = true;
                 foreach (var item in Groups)
                 {
                     if (chain.GroupUin == item)
@@ -137,6 +139,8 @@ namespace SeaBot.Message
             }
             else if (chain.GroupUin==null)
             {
+                if (Friends.Length == 0)
+                    limit = true;
                 foreach (var item in Friends)
                 {
                     if (chain.FriendUin == item)
